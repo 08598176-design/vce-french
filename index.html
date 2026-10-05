@@ -637,23 +637,63 @@
     } else {
       document.body.classList.toggle("hasvoice", !!Object.keys(CLIPS).length);
     }
-    var liveEl = null, audioEl = null;
+    /* ---- one sound element, unlocked once ----
+       A question in the mock examination speaks itself, the way it does in
+       the room, and that is a sound starting without anybody tapping
+       anything. Safari on an iPhone refuses that for a sound element it has
+       never seen played inside a real tap, which is how a run goes silent
+       after the first question while everything looks fine on a laptop.
+
+       So: one element for the whole app, woken by the first touch anywhere
+       on the page with a half-second of silence, and every clip after that
+       is the same element with a new src. Nothing is fetched for the
+       silence; it is forty-four bytes of WAV header inline. */
+    var SILENCE = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYA"
+                + "AESsAAACABAAZGF0YQAAAAA=";
+    var liveEl = null, el0 = null, woken = false;
+    function sound(){
+      if (!el0){ el0 = new Audio(); el0.preload = "auto"; }
+      return el0;
+    }
+    function wake(){
+      if (woken) return;
+      woken = true;
+      var a = sound();
+      try {
+        a.src = SILENCE;
+        a.muted = true;
+        var r = a.play();
+        if (r && r.then) r.then(function(){
+          try { a.pause(); } catch (e){}
+          a.muted = false;
+        }).catch(function(){ a.muted = false; });
+        else { try { a.pause(); } catch (e){} a.muted = false; }
+      } catch (e){ a.muted = false; }
+    }
+    ["pointerdown", "touchstart", "keydown"].forEach(function(ev){
+      document.addEventListener(ev, wake, { capture:true, once:true });
+    });
     function playClip(clip, el){
-      audioEl = new Audio("audio/" + clip);
-      audioEl.playbackRate = S.rate;
+      var a = sound();
+      a.onended = a.onerror = null;
+      try { a.pause(); } catch (e){}
+      a.src = "audio/" + clip;
+      a.playbackRate = S.rate;
       if (el) el.classList.add("live");
       liveEl = el;
-      audioEl.onended = audioEl.onerror = function(){
+      a.onended = a.onerror = function(){
         if (el) el.classList.remove("live");
         if (liveEl === el) liveEl = null;
-        audioEl = null;
       };
-      audioEl.play().catch(function(){ audioEl = null;
-        if (el) el.classList.remove("live"); });
+      var r = a.play();
+      if (r && r.catch) r.catch(function(){
+        if (el) el.classList.remove("live");
+        if (liveEl === el) liveEl = null;
+      });
     }
     function stop(){
       if (liveEl){ liveEl.classList.remove("live"); liveEl = null; }
-      if (audioEl){ try { audioEl.pause(); } catch (e){} audioEl = null; }
+      if (el0){ try { el0.pause(); } catch (e){} }
       try { if (can) speechSynthesis.cancel(); } catch (e){}
     }
     return {
@@ -1019,7 +1059,12 @@
       b.onclick = function(){ SAY.stop(); go(b.dataset.go); };
     });
   }
-  function after(){ wirePlay(); wireRec(); }
+  function after(){
+    wirePlay(); wireRec();
+    each(document, "[data-again]", function(b){
+      b.onclick = function(){ SAY.speak(b.dataset.again); };
+    });
+  }
 
   function shellNote(){
     return '<div class="tip"><b>How much of this is checked</b>'
@@ -1555,6 +1600,14 @@
     if (step === "exit")  return exExit();
     return exStart();
   };
+  /* Speaks a question once, the first time it is drawn. A redraw of the
+     same screen (opening a details, toggling the English) must not start it
+     over the top of a student who is halfway through answering. */
+  function heard(id, text){
+    if (!RUN || RUN.heard === id) return;
+    RUN.heard = id;
+    SAY.speak(text);
+  }
   function exHead(sub){
     setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"L'épreuve", r:"ex" }], sub);
   }
@@ -1624,6 +1677,8 @@
       + '<div class="qrow"><div class="card">'
       + '<span class="frtext">' + esc(q.question_fr) + '</span>'
       + enLine(q.question_en) + '</div>' + saybtn(q.question_fr) + '</div>'
+      + '<div class="row"><button class="btn ghost sm" data-again="'
+      + esc(speakable(q.question_fr)) + '">Réécouter</button></div>'
       + '<p class="note">Answer out loud before you open anything below.</p>'
       + '<details><summary><span class="tier">If they push further</span></summary>'
       + '<div class="dbody">' + (q.followups || []).map(function(f){
@@ -1636,6 +1691,10 @@
       + '<div class="row"><button class="btn ghost sm" id="endEarly">'
       + 'Stop and walk out</button></div>' + foot();
     startClock(CRIT.sections[0].minutes * 60);
+    /* Spoken on arrival, the way it happens in the room, and only the first
+       time this question is drawn so that opening the follow-ups does not
+       set it off again. */
+    heard(q.id, q.question_fr);
     $("nextQ").onclick = function(){
       stopRecorder(); SAY.stop(); RUN.i++;
       if (RUN.i >= RUN.s1.length){ RUN.stage = "trans"; go("ex:trans"); }
@@ -1686,6 +1745,8 @@
             + '<span class="frtext">' + esc(served.question_fr) + '</span>'
             + enLine(served.question_en) + '</div>'
             + saybtn(served.question_fr) + '</div>'
+            + '<div class="row"><button class="btn ghost sm" data-again="'
+            + esc(speakable(served.question_fr)) + '">Réécouter</button></div>'
           : '<div class="hidden-q">Pick a direction below. The assessors are '
             + 'asking blind, so you will not get them in this order on the day.'
             + '</div>')
@@ -1709,6 +1770,7 @@
       + '<div class="row"><button class="btn wide" id="goExit">'
       + 'Finish and walk out</button></div>' + foot();
     startClock(CRIT.sections[1].minutes * 60);
+    if (served) heard(served.id, served.question_fr);
     each($("main"), "[data-m]", function(b){
       b.onclick = function(){
         stopRecorder(); SAY.stop(); RUN.n2++; go("ex:s2:" + b.dataset.m);
