@@ -8,7 +8,8 @@ works with no signal.
   three ways
 - The whole examination on the clock, in the order it runs
 - Drills built from the VCE French oral assessment reports, 2020 to 2025
-- Six subtopics those reports name as having been brought into the room
+- Twenty-one subtopics in four groups, eight of them named in those
+  reports as having been brought into the room
 - Useful phrases, with the ones assessors quoted marked as such
 - Self-marking against the VCAA criteria, quoted word for word
 

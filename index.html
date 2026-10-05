@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="google" content="notranslate">
-<meta name="theme-color" content="#16375e">
+<meta name="theme-color" content="#f4f0e7">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Oral français">
-<title>Oral français — VCE practice</title>
+<meta name="apple-mobile-web-app-title" content="L'oral">
+<title>«L'oral» · VCE French oral practice</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -18,24 +18,50 @@
      night before. Nothing below 15px, body copy at 17, tap targets at 44.
      The navigation is at the top because that is where a thumb looks first on
      a page you are reading rather than scrolling through. */
+  /* ---------- the look ----------
+     Not the flag. France has a far older and quieter visual tradition than
+     red white and blue, and this borrows from it: the cream of laid paper,
+     ink rather than black, a display serif cut in the Didot manner, labels
+     in letterspaced capitals the way a French book sets its running heads,
+     and hairlines instead of boxes wherever a box is not doing any work.
+
+     The one strong colour is outremer, the ultramarine that French painting
+     has reached for since the pigment was worth more than gold and that
+     Yves Klein eventually patented a version of. It carries every control
+     and appears nowhere else.
+
+     The six section colours are named French pigments and nuances, each one
+     a thing before it was a colour: the blue of the Chartres windows, the
+     pink Sèvres mixed for Madame de Pompadour, the Naples yellow the
+     Impressionists painted light with, the grey of the Trianon joinery,
+     almond green, and raw sienna. They are handed in by TABS as --c for the
+     pane and --ci for the ink on it, so no colour is named in the stylesheet.
+
+     A Year 12 student practising on a phone, often standing up, often the
+     night before: nothing below 15px, body copy at 17, tap targets at 44. */
   :root{
-    --bg:#eef1f5; --paper:#ffffff; --ink:#15191f; --muted:#4a5464;
-    --line:#ccd5e0; --line-soft:#e3e9f0;
-    --deep:#16375e;          /* the navy that carries every control */
-    --accent:#a83232;        /* a correction, a warning, time running out */
-    --ok:#2f6a3e;            /* something right, something done */
-    --tip:#fff8e1;           /* an examiner tip, quoted from a report */
-    --tipline:#e0cf9a;
-    --c1:#d9edf1; --c2:#fbe3e8; --c3:#dcecdc; --c4:#e4e1f0;
-    --c5:#f6d9c8; --c6:#dde9f5;
-    --shadow:0 2px 10px rgba(0,0,0,.07);
-    /* The six section colours are traditional Japanese ones, pastel so that
-       the ink on them is dark: 空色, 一斤染, 玉子色, 藤色, 青磁色, 若緑.
-       Each tab hands in its own pair as --c (the pane) and --ci (the ink on
-       it), so no colour is named anywhere but in TABS. */
+    --bg:#f4f0e7;            /* papier crème */
+    --paper:#fffdf8;
+    --ink:#1c2129;           /* encre, never black */
+    --muted:#5e6472;
+    --line:#d9d3c5; --line-soft:#ebe6da;
+    --deep:#27318a;          /* outremer: every control, and nothing else */
+    --accent:#8c2f39;        /* lie-de-vin: a correction, time running out */
+    --ok:#3c6b4a;
+    --tip:#f7f0dc;           /* an assessor's own words, on tinted stock */
+    --tipline:#ddd0a8;
+    --c1:#e2e9f1; --c2:#f7e5e3; --c3:#f4ecd6; --c4:#e6e8ee;
+    --c5:#e4eee1; --c6:#f2e5d6;
+    --shadow:0 1px 3px rgba(28,33,41,.09);
     --font-en:Calibri,Carlito,'Segoe UI',Tahoma,Geneva,Verdana;
     --font:var(--font-en),sans-serif;
-    --spk:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2316375e' d='M4 9v6h4l5 4V5L8 9H4zm12.5 3c0-1.6-.9-2.9-2.2-3.6v7.2c1.3-.7 2.2-2 2.2-3.6zM14.3 4.4v1.9c2.6.8 4.5 3.2 4.5 6s-1.9 5.2-4.5 6v1.9c3.6-.9 6.3-4.2 6.3-7.9s-2.7-7.1-6.3-7.9z'/%3E%3C/svg%3E");
+    /* Didot is on every Mac and iPhone, Bodoni on most Windows machines,
+       and the fallbacks walk down to whatever serif there is. Nothing is
+       fetched: the app has to work on a tram. */
+    --display:Didot,'Didot LT STD','Bodoni 72','Bodoni MT','Hoefler Text',
+              'Playfair Display','Palatino Linotype',Palatino,Garamond,
+              'Times New Roman',serif;
+    --spk:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2327318a' d='M4 9v6h4l5 4V5L8 9H4zm12.5 3c0-1.6-.9-2.9-2.2-3.6v7.2c1.3-.7 2.2-2 2.2-3.6zM14.3 4.4v1.9c2.6.8 4.5 3.2 4.5 6s-1.9 5.2-4.5 6v1.9c3.6-.9 6.3-4.2 6.3-7.9s-2.7-7.1-6.3-7.9z'/%3E%3C/svg%3E");
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{-webkit-text-size-adjust:100%}
@@ -56,7 +82,8 @@
   .bar{display:flex;align-items:center;gap:10px;padding:9px 14px 8px;
        min-height:54px;max-width:720px;margin:0 auto}
   .htitle{min-width:0;flex:1}
-  .crumb{font-size:17.5px;font-weight:700;line-height:1.25;
+  .crumb{font-family:var(--display);font-size:19px;font-weight:600;
+         letter-spacing:.01em;line-height:1.25;
          white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .crumb button{border:0;background:none;padding:0;font-family:inherit;
          font-size:15px;font-weight:600;color:var(--deep);cursor:pointer;
@@ -93,39 +120,45 @@
   nav{border-top:1px solid var(--line-soft);background:var(--paper)}
   .navin{display:flex;max-width:720px;margin:0 auto}
   nav button{flex:1;min-width:0;border:0;cursor:pointer;
-             padding:7px 2px 6px;display:flex;flex-direction:column;
+             padding:8px 2px 7px;display:flex;flex-direction:column;
              align-items:center;gap:3px;font-family:var(--font);
-             color:var(--ci);
-             background:linear-gradient(170deg,rgba(255,255,255,.62),
-                        rgba(255,255,255,0) 58%),var(--c);
-             box-shadow:inset 0 1px 0 rgba(255,255,255,.75),
-                        inset -1px 0 0 rgba(255,255,255,.5);
-             opacity:.58;transition:opacity .14s}
-  nav button:last-child{box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}
+             color:var(--ci);background:var(--c);
+             box-shadow:inset -1px 0 0 rgba(255,253,248,.85);
+             opacity:.54;transition:opacity .14s}
+  nav button:last-child{box-shadow:none}
   nav button svg{width:22px;height:22px;display:block}
-  nav button .ic{stroke-width:2.6}
-  nav button .lab{font-size:10.5px;line-height:1.15;font-weight:700;
-             height:2.3em;text-align:center;letter-spacing:-.1px}
+  nav button .ic{stroke-width:2}
+  nav button .lab{font-size:10.5px;line-height:1.15;font-weight:600;
+             height:2.3em;text-align:center;letter-spacing:.01em}
   /* The one you are on is the one at full strength. Every other pane keeps
      its colour, dimmed, so the row stays a row of six places rather than one
      button and five gaps. */
-  nav button.on{opacity:1;box-shadow:inset 0 2px 0 var(--ci),
-             inset 0 3px 0 rgba(255,255,255,.55)}
+  nav button.on{opacity:1;box-shadow:inset 0 3px 0 var(--ci),
+             inset -1px 0 0 rgba(255,253,248,.85)}
   nav button:active{filter:brightness(.94)}
-  .ic{fill:none;stroke:currentColor;stroke-width:2.4;
+  .ic{fill:none;stroke:currentColor;stroke-width:1.9;
       stroke-linecap:round;stroke-linejoin:round}
   .icf{fill:currentColor;stroke:none}
 
   main{max-width:720px;margin:0 auto;padding:14px 14px 70px}
-  h2{font-size:21px;line-height:1.3;margin:2px 0 10px}
+  h2{font-family:var(--display);font-size:23px;font-weight:600;
+     line-height:1.28;letter-spacing:.01em;margin:2px 0 10px}
   h2 .en{display:block;font-size:13.5px;font-weight:400;color:var(--muted);
          margin-top:2px}
-  h3{font-size:17px;margin:18px 0 8px}
+  h3{font-family:var(--display);font-size:19px;font-weight:600;
+     letter-spacing:.01em;margin:20px 0 8px;padding-top:10px;
+     border-top:1px solid var(--line-soft)}
+  h3:first-child{border-top:0;padding-top:0}
   p{margin:0 0 10px}
   .lede{color:var(--muted);font-size:15.5px;margin-bottom:14px}
+  /* A lettrine. French books have opened a page this way since they were
+     copied by hand, and one of them costs nothing. */
+  .lede.lettrine:first-letter{float:left;font-family:var(--display);
+       font-size:3.2em;line-height:.8;font-weight:600;color:var(--deep);
+       padding:5px 9px 0 0}
 
-  .card{background:var(--paper);border:1px solid var(--line);border-radius:13px;
-        padding:13px 14px;margin:0 0 11px;box-shadow:var(--shadow)}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:4px;
+        padding:13px 15px;margin:0 0 11px;box-shadow:var(--shadow)}
   .card.flat{box-shadow:none}
   button.card{display:block;width:100%;text-align:left;cursor:pointer;
               font-family:var(--font);font-size:17px;color:inherit;
@@ -136,14 +169,14 @@
   .qrow{position:relative}
   .qrow>.card{padding-bottom:48px}
   .playbtn{position:absolute;right:10px;bottom:10px;width:44px;height:44px;
-       border:2px solid var(--deep);border-radius:11px;background:#fff;
+       border:1px solid var(--deep);border-radius:4px;background:var(--paper);
        cursor:pointer;padding:0}
   .playbtn:after{content:"";display:block;width:21px;height:21px;margin:0 auto;
        background:var(--spk) center/contain no-repeat}
   body:not(.hasvoice) .playbtn{display:none}
   body:not(.hasvoice) .qrow>.card{padding-bottom:13px}
-  .frtext{font-family:var(--font);font-size:19px;
-       line-height:2.05;display:block}
+  .frtext{font-family:var(--display);font-size:21px;font-weight:500;
+       line-height:1.65;display:block}
 
   /* How hard to pitch a run. Four choices in one row, so the whole decision
      is one tap and the page does not grow a paragraph to explain it. */
@@ -152,26 +185,28 @@
   /* Six squares that join, as one sheet of glass divided into panes
      rather than six separate buttons. The seams are white hairlines, not
      gaps: a gap makes six objects, a seam makes one. */
-  .blocks{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:4px 0 16px;
-          border-radius:20px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.13)}
+  .blocks{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin:4px 0 14px;
+          background:rgba(28,33,41,.13);border:1px solid rgba(28,33,41,.13);
+          border-radius:3px;overflow:hidden;
+          box-shadow:0 2px 14px rgba(28,33,41,.09)}
   @media (min-width:560px){ .blocks{grid-template-columns:1fr 1fr 1fr} }
-  .block{aspect-ratio:1;display:flex;flex-direction:column;
+  /* Flat colour and a keyline set in from the edge: the way a printed
+     affiche is laid out, and the reason these read as a set rather than as
+     six buttons. */
+  .block{position:relative;aspect-ratio:1;display:flex;flex-direction:column;
          align-items:center;justify-content:center;text-align:center;
-         gap:7px;border:0;border-radius:0;padding:12px 13px;cursor:pointer;
-         font-family:var(--font);color:var(--ci);
-         background:linear-gradient(165deg,rgba(255,255,255,.72),
-                    rgba(255,255,255,.08) 52%,rgba(255,255,255,0) 70%),var(--c);
-         box-shadow:inset 0 1px 0 rgba(255,255,255,.85),
-                    inset 1px 0 0 rgba(255,255,255,.45),
-                    inset -1px 0 0 rgba(255,255,255,.45),
-                    inset 0 -1px 0 rgba(255,255,255,.35);
+         gap:8px;border:0;border-radius:0;padding:14px 15px;cursor:pointer;
+         font-family:var(--font);color:var(--ci);background:var(--c);
          transition:filter .13s}
-  .block:active{filter:brightness(.93) saturate(1.1)}
+  .block:before{content:"";position:absolute;inset:9px;pointer-events:none;
+         border:1px solid currentColor;opacity:.22}
+  .block:active{filter:brightness(.95)}
   .block .bi{display:flex;align-items:center;justify-content:center}
   .block svg{width:34px;height:34px}
   .block .ic{stroke-width:2.3}
-  .block .bt{font-size:17px;font-weight:800;line-height:1.15}
-  .block .bd{font-size:12.5px;line-height:1.3;opacity:.95}
+  .block .bt{font-family:var(--display);font-size:19px;font-weight:600;
+       letter-spacing:.01em;line-height:1.15}
+  .block .bd{font-size:12.5px;line-height:1.35;opacity:.9;max-width:21ch}
   @media (max-width:340px){
     .block .bt{font-size:15.5px} .block .bd{font-size:11.5px}
     .block svg{width:29px;height:29px}
@@ -182,19 +217,19 @@
      because half of them carry a Japanese sentence and a play button. */
   .opt{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;
        width:100%;text-align:left;background:var(--paper);color:inherit;
-       border:2px solid var(--line);border-radius:12px;padding:11px 12px;
-       margin-bottom:8px;font-family:var(--font);font-size:16.5px;
+       border:1.5px solid var(--line);border-radius:4px;padding:12px 13px;
+       margin-bottom:8px;font-family:var(--display);font-size:19px;
        cursor:pointer;
        line-height:1.4;cursor:pointer;min-height:52px}
   .opt .oen{display:block;font-size:13.5px;color:var(--muted);margin-top:2px}
   .opt.pick{border-color:var(--deep)}
-  .opt.yes{border-color:var(--ok);background:#f1f8f2}
-  .opt.no{border-color:var(--accent);background:#fdf2f2}
+  .opt.yes{border-color:var(--ok);background:#f0f6f1}
+  .opt.no{border-color:var(--accent);background:#fbf1f1}
   .opt.dim{opacity:.55}
   .opt .mark{font-size:20px;font-weight:800;line-height:1}
   .opt.yes .mark{color:var(--ok)} .opt.no .mark{color:var(--accent)}
-  .opt .spk{flex:none;width:40px;height:40px;border:2px solid var(--deep);
-       border-radius:10px;background:#fff;cursor:pointer;padding:0}
+  .opt .spk{flex:none;width:40px;height:40px;border:1px solid var(--deep);
+       border-radius:4px;background:var(--paper);cursor:pointer;padding:0}
   .opt .spk:after{content:"";display:block;width:19px;height:19px;margin:0 auto;
        background:var(--spk) center/contain no-repeat}
   body:not(.hasvoice) .opt .spk{display:none}
@@ -208,9 +243,10 @@
   /* The topic the student picked, shown wherever it governs what happens
      next, with its words one tap away: the mock assessors' first note was
      that a student without the vocabulary cannot explain their research. */
-  .mytopic{border:2px solid var(--deep);border-radius:13px;padding:10px 13px;
+  .mytopic{border:1px solid var(--deep);border-radius:4px;padding:11px 14px;
        margin:2px 0 12px;background:var(--paper)}
-  .mytopic>b{font-size:19px;margin-right:7px}
+  .mytopic>b{font-family:var(--display);font-size:21px;font-weight:600;
+       margin-right:7px}
   .mytopic>span{display:block;font-size:14px;color:var(--muted);margin-top:2px}
   .mytopic details{margin-top:8px}
   .lnk{border:0;background:none;padding:0;font-family:var(--font);
@@ -221,8 +257,8 @@
 
   /* A script card: who says the line matters more than anything else on
      the entry and exit screens, so it is a label rather than a colour. */
-  .card .who{font-size:11.5px;font-weight:800;letter-spacing:.06em;
-       text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+  .card .who{font-size:11px;font-weight:600;letter-spacing:.15em;
+       text-transform:uppercase;color:var(--muted);margin-bottom:4px}
   .card.mine{border-left:4px solid var(--deep)}
   .card.mine .who{color:var(--deep)}
 
@@ -231,10 +267,11 @@
      phone: eight choices in one column is a scroll, and scrolling is time. */
   .moves{display:grid;grid-template-columns:1fr;gap:8px;margin:6px 0 14px}
   @media (min-width:360px){ .moves{grid-template-columns:1fr 1fr} }
-  .movebtn{text-align:left;border:2px solid var(--line);border-radius:12px;
+  .movebtn{text-align:left;border:1px solid var(--line);border-radius:4px;
        background:var(--paper);color:inherit;padding:10px 11px;cursor:pointer;
        font-family:var(--font);min-height:62px}
-  .movebtn b{display:block;font-size:15.5px;line-height:1.2}
+  .movebtn b{display:block;font-family:var(--display);font-size:17px;
+       font-weight:600;line-height:1.2}
   .movebtn i{display:block;font-style:normal;font-size:14px;color:var(--deep);
        margin-top:1px}
   .movebtn span{display:block;font-size:12.5px;color:var(--muted);
@@ -242,60 +279,64 @@
   .movebtn[disabled]{opacity:.38;cursor:default}
 
   .segs{display:flex;gap:6px;margin:4px 0 6px}
-  .seg{flex:1;min-width:0;min-height:44px;padding:6px 4px;border:1.5px solid var(--line);
-       border-radius:11px;background:var(--paper);color:var(--muted);cursor:pointer;
+  .seg{flex:1;min-width:0;min-height:44px;padding:6px 4px;border:1px solid var(--line);
+       border-radius:3px;background:var(--paper);color:var(--muted);cursor:pointer;
        font-family:var(--font);font-size:14px;font-weight:600;line-height:1.2}
   .seg.on{background:var(--deep);border-color:var(--deep);color:#fff;font-weight:700}
   .seghint{font-size:14.5px;color:var(--muted);margin:0 0 12px}
 
   .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
          gap:10px;margin-bottom:12px}
-  .tile{border:1px solid var(--line);border-radius:13px;padding:12px 13px;
+  .tile{border:1px solid var(--line);border-radius:4px;padding:13px 14px;
         cursor:pointer;font-family:var(--font);font-size:16.5px;text-align:left;
         color:inherit;line-height:1.4;box-shadow:var(--shadow)}
-  .tile b{display:block;font-size:17px}
+  .tile b{display:block;font-family:var(--display);font-size:19px;
+          font-weight:600;line-height:1.25}
   .tile i.what{margin-top:4px;color:var(--ink);opacity:.8;font-size:13.5px}
   .tile i{display:block;font-style:normal;font-size:13px;color:var(--muted);
           margin-top:3px}
+  .tile i.seen{font-size:11px;text-transform:uppercase;letter-spacing:.11em;
+          font-weight:600;color:var(--deep);opacity:.75}
   .tile:nth-child(6n+1){background:var(--c1)} .tile:nth-child(6n+2){background:var(--c2)}
   .tile:nth-child(6n+3){background:var(--c3)} .tile:nth-child(6n+4){background:var(--c4)}
   .tile:nth-child(6n+5){background:var(--c5)} .tile:nth-child(6n){background:var(--c6)}
 
   /* ---------- French lines, every one of them tappable ---------- */
-  .fr{font-family:var(--font);font-size:19px;
-      line-height:2.05;cursor:pointer;display:block;position:relative;
+  .fr{font-family:var(--display);font-size:21px;font-weight:500;
+      line-height:1.65;cursor:pointer;display:block;position:relative;
       padding-right:30px}
   .fr:after{content:"";position:absolute;right:0;top:.45em;width:19px;height:19px;
             background:var(--spk) center/contain no-repeat;opacity:.5}
   body:not(.hasvoice) .fr{cursor:default;padding-right:0}
   body:not(.hasvoice) .fr:after{display:none}
-  .fr.live{background:#fff6cf;border-radius:5px}
+  .fr.live{background:#f6edcd;border-radius:2px;box-shadow:0 0 0 3px #f6edcd}
   body.noen .en{display:none}
   .en{font-size:15px;color:var(--muted);line-height:1.45}
   .novoice{display:none;background:var(--tip);border:1px solid var(--tipline);
-           border-radius:10px;padding:9px 11px;font-size:14.5px;margin-bottom:12px}
+           border-radius:4px;padding:10px 12px;font-size:14.5px;margin-bottom:12px}
   body:not(.hasvoice) .novoice{display:block}
 
   /* ---------- filters ---------- */
   .filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-  .chip{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;
+  .chip{border:1px solid var(--line);background:var(--paper);border-radius:3px;
         padding:6px 12px;font-family:var(--font);font-size:14.5px;cursor:pointer;
-        color:var(--muted);min-height:36px}
+        color:var(--muted);min-height:36px;letter-spacing:.01em}
   .chip.on{background:var(--deep);border-color:var(--deep);color:#fff;font-weight:600}
-  .fgroup{width:100%;font-size:12.5px;text-transform:uppercase;
-          letter-spacing:.06em;color:var(--muted);margin:4px 0 -2px}
+  .fgroup{width:100%;font-size:11px;text-transform:uppercase;
+          letter-spacing:.15em;font-weight:600;color:var(--muted);margin:4px 0 -2px}
 
   /* ---------- one question ---------- */
   .qmeta{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
-  .pill{font-size:12.5px;background:var(--line-soft);border-radius:999px;
-        padding:3px 9px;color:var(--muted)}
-  .pill.ho{background:#ffe4e4;color:#8c2222;font-weight:600}
-  .tip{background:var(--tip);border:1px solid var(--tipline);border-radius:11px;
-       padding:11px 12px;margin:12px 0;font-size:15px}
-  .tip b{display:block;font-size:12.5px;text-transform:uppercase;
-         letter-spacing:.06em;color:#7a6320;margin-bottom:4px}
+  .pill{font-size:11.5px;background:var(--line-soft);border-radius:3px;
+        padding:3px 9px;color:var(--muted);text-transform:uppercase;
+        letter-spacing:.1em;font-weight:600}
+  .pill.ho{background:#f6e2e2;color:var(--accent)}
+  .tip{background:var(--tip);border:1px solid var(--tipline);border-radius:4px;
+       padding:12px 14px;margin:12px 0;font-size:15px;white-space:pre-line}
+  .tip b{display:block;font-size:11px;text-transform:uppercase;
+         letter-spacing:.15em;font-weight:600;color:#7a6320;margin-bottom:5px}
   .tip q{font-style:italic}
-  details{border:1px solid var(--line);border-radius:11px;padding:0;
+  details{border:1px solid var(--line);border-radius:4px;padding:0;
           margin:0 0 9px;background:var(--paper)}
   /* Block, not flex. A flex summary makes every inline run inside it a flex
      item, which breaks a word with readings into one piece per character. */
@@ -307,20 +348,20 @@
   details[open]>summary:after{transform:rotate(180deg)}
   details>summary .tier{margin-left:7px}
   .dbody{padding:0 13px 12px}
-  .tier{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;
-        color:var(--muted)}
+  .tier{font-size:11px;text-transform:uppercase;letter-spacing:.15em;
+        font-weight:600;color:var(--muted)}
   .vocab{list-style:none;font-size:15.5px}
   .vocab li{padding:4px 0;border-bottom:1px solid var(--line-soft)}
   .vocab li:last-child{border:0}
-  .vocab b{font-family:var(--font);font-size:17px}
+  .vocab b{font-family:var(--display);font-size:18.5px;font-weight:600}
   .gram{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}
-  .gram span{font-size:14px;background:#eaf0f7;border-radius:7px;padding:3px 8px;
+  .gram span{font-size:14px;background:#eceef8;border-radius:3px;padding:3px 9px;
              font-family:var(--font)}
 
   /* ---------- buttons ---------- */
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
-       border:2px solid var(--deep);background:var(--deep);color:#fff;
-       border-radius:11px;padding:11px 16px;font-family:var(--font);
+       border:1.5px solid var(--deep);background:var(--deep);color:#fffdf8;
+       border-radius:4px;padding:11px 16px;font-family:var(--font);
        font-size:16px;font-weight:600;cursor:pointer;min-height:46px}
   .btn.ghost{background:#fff;color:var(--deep)}
   .btn.warn{border-color:var(--accent);background:var(--accent)}
@@ -330,17 +371,17 @@
 
   /* ---------- the mock examination ---------- */
   .clock{position:sticky;top:0;z-index:5;display:flex;align-items:center;
-         gap:10px;background:var(--deep);color:#fff;border-radius:11px;
+         gap:10px;background:var(--deep);color:#fffdf8;border-radius:4px;
          padding:9px 13px;margin-bottom:12px;font-variant-numeric:tabular-nums}
   .clock b{font-size:25px;font-weight:700;letter-spacing:.02em}
   .clock span{font-size:13.5px;opacity:.9}
   .clock.low{background:var(--accent)}
-  .hidden-q{background:#f3f6fa;border:1px dashed var(--line);border-radius:11px;
+  .hidden-q{background:#f8f4ea;border:1px dashed var(--line);border-radius:4px;
             padding:16px 14px;text-align:center;color:var(--muted);font-size:15px}
   .chain{list-style:none;margin:10px 0 0}
   .chain li{padding:8px 0;border-top:1px solid var(--line-soft)}
-  .step{font-size:12.5px;color:var(--muted);text-transform:uppercase;
-        letter-spacing:.06em}
+  .step{font-size:11px;color:var(--muted);text-transform:uppercase;
+        letter-spacing:.15em;font-weight:600}
 
   /* ---------- recording ---------- */
   .rec{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -377,27 +418,28 @@
 
   /* ---------- self assessment ---------- */
   .bands{display:grid;gap:7px;margin:8px 0 0}
-  .band{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);
-        border-radius:10px;padding:9px 11px;cursor:pointer;background:var(--paper);
+  .band{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);
+        border-radius:3px;padding:10px 12px;cursor:pointer;background:var(--paper);
         font-family:var(--font);font-size:15px;text-align:left;color:inherit;
         line-height:1.45}
-  .band.on{border-color:var(--deep);background:#eaf0f7}
-  .band b{flex:none;font-size:15px;color:var(--deep);min-width:38px}
+  .band.on{border-color:var(--deep);background:#eceef8}
+  .band b{flex:none;font-family:var(--display);font-size:17px;
+       font-weight:600;color:var(--deep);min-width:40px}
   .mark{font-size:30px;font-weight:700;color:var(--deep)}
 
   /* ---------- drills ---------- */
-  .drillq{font-size:19px;font-family:var(--font);
-          line-height:2}
+  .drillq{font-family:var(--display);font-size:20px;font-weight:600;
+          line-height:1.5;margin-bottom:10px}
   .reveal{display:none}
   .reveal.on{display:block}
   /* A correction. Labelled in words, with a bar down the side: a colour on
      its own is no use to a reader who cannot see it, and a line through a
      whole question-and-answer pair reads as though the question was wrong. */
   .pair{display:grid;gap:7px;margin:7px 0 0}
-  .side{border-left:4px solid;border-radius:0 9px 9px 0;padding:5px 10px;
-        background:#fafbfd}
-  .side>b{display:block;font-size:12.5px;text-transform:uppercase;
-          letter-spacing:.06em;font-weight:700}
+  .side{border-left:3px solid;border-radius:0 3px 3px 0;padding:6px 11px;
+        background:#faf7f0}
+  .side>b{display:block;font-size:11px;text-transform:uppercase;
+          letter-spacing:.15em;font-weight:600}
   .side.no{border-color:var(--accent)} .side.no>b{color:var(--accent)}
   .side.yes{border-color:var(--ok)} .side.yes>b{color:var(--ok)}
   .score{font-size:14px;color:var(--muted)}
@@ -414,6 +456,12 @@
   /* The credits are a footnote, not a paragraph. Small enough to stop
      competing with the work on the page, still large enough to read if
      somebody goes looking for where the content came from. */
+  /* The colour names, in the small print where a plate list belongs. */
+  .hues{color:var(--muted);font-size:11.5px;line-height:1.9;margin-top:18px;
+        font-style:italic;letter-spacing:.01em}
+  .hues span{display:inline-block;width:9px;height:9px;background:var(--c);
+        border:1px solid rgba(28,33,41,.25);margin-right:5px;
+        vertical-align:baseline}
   .foot{color:var(--muted);font-size:10.5px;line-height:1.45;margin-top:26px;
         border-top:1px solid var(--line-soft);padding-top:8px;opacity:.75}
 
@@ -434,8 +482,8 @@
   /* A newline in the text becomes a line break, so a list of rules reads
      as a list rather than a paragraph. Tall ones scroll rather than running
      off the top of a phone. */
-  .tip-pop{position:fixed;z-index:120;display:none;background:var(--deep);
-       color:#fff;border-radius:11px;padding:10px 13px;font-size:14.5px;
+  .tip-pop{position:fixed;z-index:120;display:none;background:var(--ink);
+       color:#fffdf8;border-radius:4px;padding:11px 14px;font-size:14.5px;
        line-height:1.45;box-shadow:0 6px 22px rgba(0,0,0,.3);
        font-family:var(--font);white-space:pre-line;
        max-height:70vh;overflow-y:auto;overscroll-behavior:contain}
@@ -448,8 +496,8 @@
   .recbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;
        margin:0 0 12px}
   .recbtn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;
-       border:2px solid var(--accent);background:#fff;color:var(--accent);
-       border-radius:11px;padding:0 14px;min-height:44px;
+       border:1.5px solid var(--accent);background:var(--paper);color:var(--accent);
+       border-radius:4px;padding:0 14px;min-height:44px;
        font-family:var(--font);font-size:15.5px;font-weight:700}
   .recbtn .rdot{width:13px;height:13px;border-radius:50%;
        background:var(--accent);flex:none}
@@ -459,7 +507,7 @@
   .recbar audio{height:38px;max-width:100%}
   .btn.sm{min-height:44px;padding:0 13px;font-size:15px}
   @media (max-width:360px){
-    .fr{font-size:18px} body{font-size:16.5px}
+    .fr{font-size:19.5px} .frtext{font-size:19.5px} body{font-size:16.5px}
     .bar{gap:7px;padding-left:10px;padding-right:10px}
   }
 </style>
@@ -514,7 +562,8 @@
       RP   = window.FR_REPORTS,
       FL   = window.FR_FLOW,
       QD   = window.FR_QUESTIONS,
-      TOP  = (window.FR_TOPICS || { topics:[] }).topics,
+      TOPD = window.FR_TOPICS || { topics:[], groups:[] },
+      TOP  = TOPD.topics,
       PH   = window.FR_PHRASES,
       BUILD = "Build 2, 5 October 2026";
 
@@ -772,26 +821,30 @@
     if (S.click) CLICK.play();
   };
 
-  /* ================= the sections ================= */
+  /* ================= the sections =================
+     Each tab hands in its own pair: --c for the pane, --ci for the ink on
+     it. The six are named French pigments and nuances, and the names are
+     printed on the home page, because half the pleasure of a colour is
+     knowing it was a thing first. */
   var TABS = [
     { id:"q",  fr:"Questions", lab:"Questions", en:"Questions",
       home:"Twenty-four conversation questions, answered three ways each",
-      icon:"bubble", c:"#a0d8ef", ci:"#1f5f82" },
+      icon:"bubble", c:"#a9bfd8", ci:"#1f3f63", hue:"bleu de Chartres" },
     { id:"ex", fr:"L'épreuve", lab:"Épreuve", en:"Timed practice",
       home:"The whole examination on the clock, in the order it runs",
-      icon:"clock",  c:"#f5b1aa", ci:"#8e3f38" },
+      icon:"clock",  c:"#e9c6c4", ci:"#7e3b42", hue:"rose Pompadour" },
     { id:"dr", fr:"Exercices", lab:"Exercices", en:"Drills",
       home:"Built from six years of French assessor reports",
-      icon:"target", c:"#fcd575", ci:"#6a4806" },
+      icon:"target", c:"#ecdca9", ci:"#6a5219", hue:"jaune de Naples" },
     { id:"di", fr:"Discussion", lab:"Discussion", en:"Discussion",
-      home:"Six real subtopics and the nine directions a question can take",
-      icon:"steps",  c:"#bbbcde", ci:"#434489" },
+      home:"Real subtopics, and the nine directions a question can take",
+      icon:"steps",  c:"#c7cad3", ci:"#3b4356", hue:"gris Trianon" },
     { id:"ph", fr:"Phrases utiles", lab:"Phrases", en:"Phrases",
       home:"Lines worth knowing by heart, in five groups",
-      icon:"lines",  c:"#a8d8ce", ci:"#2d6b60" },
+      icon:"lines",  c:"#c2d6bf", ci:"#2f5a3c", hue:"vert amande" },
     { id:"me", fr:"Auto-évaluation", lab:"Auto-évaluation", en:"Self-grade",
-      home:"Mark yourself against the four criteria",
-      icon:"person", c:"#b5d5a0", ci:"#426b2c" }
+      home:"The VCAA descriptors, quoted, as a marking sheet",
+      icon:"person", c:"#ddc0a2", ci:"#6d4727", hue:"terre de Sienne" }
   ];
   var ICONS = {
     bubble:'<svg viewBox="0 0 28 28" aria-hidden="true"><path class="ic" d="M3.5 6.5h21v13h-12l-6 5v-5h-3z"/><path class="ic" d="M10.5 11.2c0-1.6 1.3-2.7 2.9-2.7 1.6 0 2.9 1 2.9 2.4 0 2-2.6 2.2-2.6 4"/><circle class="icf" cx="13.7" cy="17.2" r="1.15"/></svg>',
@@ -831,10 +884,15 @@
   }
   var TRAIL = [];
   function setHead(trail, sub){
+    /* A display serif at this size fits about twenty characters on a
+       phone, and the first crumb is always home, which has its own button
+       two centimetres to the left. So any trail but the home page's own
+       drops its root rather than ellipsing the page you are actually on. */
+    if (trail.length > 1) trail = trail.slice(1);
     TRAIL = trail;
     $("crumb").innerHTML = trail.map(function(s, i){
       var last = i === trail.length - 1;
-      return (i ? '<span class="sep">›</span>' : "")
+      return (i ? '<span class="sep">·</span>' : "")
            + (last ? esc(s.fr)
                    : '<button data-r="' + esc(s.r) + '">' + esc(s.fr) + '</button>');
     }).join("");
@@ -977,11 +1035,13 @@
 
   /* ================= home ================= */
   RENDER.home = function(){
-    setHead([{ fr:"L'oral", r:"home" }], "VCE French oral examination practice");
+    setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }],
+            "VCE French oral examination practice");
     $("main").innerHTML =
-        '<p class="lede">Practice for the VCE French Second Language oral '
-      + 'examination: about fifteen minutes, two assessors, a seven minute '
-      + 'conversation and then eight minutes on a subtopic you chose.</p>'
+        '<p class="lede lettrine">Practice for the VCE French Second Language '
+      + 'oral examination: about fifteen minutes, two assessors, a seven '
+      + 'minute conversation and then eight minutes on a subtopic you '
+      + 'chose.</p>'
       + '<div class="blocks">' + TABS.map(function(t){
           return '<button class="block" data-tab="' + t.id + '"'
                + ' style="--c:' + t.c + ';--ci:' + t.ci + '">'
@@ -992,6 +1052,9 @@
       + shellNote()
       + '<div class="novoice">No French voice on this device and no recordings '
       + 'loaded yet, so the listen buttons are hidden. Everything else works.</div>'
+      + '<p class="hues">Les couleurs : ' + TABS.map(function(t){
+          return '<span style="--c:' + t.c + '"></span>' + esc(t.hue);
+        }).join(", ") + '.</p>'
       + foot();
     each($("main"), "[data-tab]", function(b){
       b.onclick = function(){ SAY.stop(); go(b.dataset.tab); };
@@ -1008,7 +1071,7 @@
   var qFilter = "all";
   RENDER.q = function(args){
     if (args[0]) return qOne(args[0]);
-    setHead([{ fr:"L'oral", r:"home" }, { fr:"Questions", r:"q" }],
+    setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"Questions", r:"q" }],
             "Section 1, the conversation");
     var list = QD.questions.filter(function(q){
       return qFilter === "all" || q.phase === qFilter;
@@ -1046,7 +1109,7 @@
     QD.questions.forEach(function(x){ if (x.id === id) q = x; });
     if (!q) return RENDER.q([]);
     var ph = phaseOf(q.phase);
-    setHead([{ fr:"L'oral", r:"home" }, { fr:"Questions", r:"q" },
+    setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"Questions", r:"q" },
              { fr:ph.name_en, r:"q" }], "Section 1");
     var tiers = [["basic", "One sentence"], ["developed", "Developed"],
                  ["advanced", "Full marks territory"]];
@@ -1083,7 +1146,7 @@
 
   /* ================= phrases ================= */
   RENDER.ph = function(){
-    setHead([{ fr:"L'oral", r:"home" }, { fr:"Phrases utiles", r:"ph" }],
+    setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"Phrases utiles", r:"ph" }],
             "Lines worth knowing by heart");
     $("main").innerHTML =
         '<p class="lede">Four small sets. The first and last are not assessed '
@@ -1114,13 +1177,27 @@
     TOP.forEach(function(x){ if (x.id === id) t = x; });
     return t;
   }
+  /* Twenty-one of them, so they arrive in their four groups rather than as
+     one wall. A subtopic an assessor report has actually named says so, with
+     the years, because knowing the room has heard it before is worth more
+     than any recommendation this app could make. */
   function topicTiles(prefix){
-    return '<div class="tiles">' + TOP.map(function(t){
-        return '<button class="tile" data-t="' + esc(t.id) + '" data-pre="'
-             + esc(prefix) + '"><b>' + esc(t.name_fr) + '</b>'
-             + '<i class="what">' + esc(t.name_en) + '</i>'
-             + '<i>' + esc(t.theme) + '</i></button>';
-      }).join("") + '</div>';
+    return TOPD.groups.map(function(g){
+      var inGroup = TOP.filter(function(t){ return t.group === g.id; });
+      if (!inGroup.length) return "";
+      return '<h3>' + esc(g.name_fr) + ' <span class="tier">'
+           + esc(g.name_en) + '</span></h3>'
+           + '<div class="tiles">' + inGroup.map(function(t){
+               return '<button class="tile" data-t="' + esc(t.id) + '" data-pre="'
+                    + esc(prefix) + '"><b>' + esc(t.name_fr) + '</b>'
+                    + '<i class="what">' + esc(t.name_en) + '</i>'
+                    + (t.in_reports
+                        ? '<i class="seen">Brought in '
+                          + t.in_reports.join(" and ") + '</i>'
+                        : '')
+                    + '</button>';
+             }).join("") + '</div>';
+    }).join("");
   }
   function wireTiles(){
     each($("main"), "[data-t]", function(b){
@@ -1141,26 +1218,27 @@
   RENDER.di = function(args){
     var t = args[0] ? topicOf(args[0]) : null;
     if (!t){
-      setHead([{ fr:"L'oral", r:"home" }, { fr:"Discussion", r:"di" }],
+      setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"Discussion", r:"di" }],
               "Section 2, choose a subtopic");
       $("main").innerHTML =
-          '<p class="lede">Six subtopics that VCE French assessors name in '
-        + 'their reports as having been brought into the room between 2021 '
-        + 'and 2025. They are here to show the shape of one that works, not '
-        + 'because you should pick one of them.'
+          '<p class="lede lettrine">Twenty-one subtopics in four groups. The '
+        + 'eight marked as brought in are ones VCE French assessors name in '
+        + 'their reports between 2021 and 2025. None of this is a '
+        + 'recommendation: it is here to show the shape of a subtopic that '
+        + 'works before you choose your own.'
         + qmark("The reports are blunt about this. Too hard and you have no "
           + "vocabulary for it. Too narrow and you run out after two minutes. "
           + "Too vague and there is nothing to argue about. It has to "
           + "interest you enough that you hold a view.") + '</p>'
-        + topicTiles("di:")
         + '<div class="row"><button class="btn ghost" data-go="dr:why">'
-        + 'Everything the reports say about choosing</button></div>'
+        + 'What the reports say about choosing</button></div>'
+        + topicTiles("di:")
         + shellNote() + foot();
       wireTiles(); after();
       return;
     }
     var open = args[1] || null;
-    setHead([{ fr:"L'oral", r:"home" }, { fr:"Discussion", r:"di" },
+    setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"Discussion", r:"di" },
              { fr:t.name_fr, r:"di:" + t.id }], "Section 2, your subtopic");
     $("main").innerHTML =
         topicCard(t)
@@ -1226,7 +1304,7 @@
   }
   RENDER.dr = function(args){
     if (args[0] === "why") return drWhy();
-    setHead([{ fr:"L'oral", r:"home" }, { fr:"Exercices", r:"dr" }],
+    setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"Exercices", r:"dr" }],
             "Six years of assessor reports, as drills");
     var list = errorsOf(drState.kind);
     if (drState.i >= list.length) drState.i = 0;
@@ -1318,7 +1396,7 @@
     });
   }
   function drWhy(){
-    setHead([{ fr:"L'oral", r:"home" }, { fr:"Exercices", r:"dr" },
+    setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"Exercices", r:"dr" },
              { fr:"Les rapports", r:"dr:why" }],
             "The same advice, six years running");
     $("main").innerHTML =
@@ -1363,7 +1441,7 @@
     return m ? [+m[1], m[2] ? +m[2] : +m[1]] : [0, 0];
   }
   RENDER.me = function(){
-    setHead([{ fr:"L'oral", r:"home" }, { fr:"Auto-évaluation", r:"me" }],
+    setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"Auto-évaluation", r:"me" }],
             "The real criteria, word for word");
     var all = [];
     CRIT.sections.forEach(function(sec){
@@ -1478,7 +1556,7 @@
     return exStart();
   };
   function exHead(sub){
-    setHead([{ fr:"L'oral", r:"home" }, { fr:"L'épreuve", r:"ex" }], sub);
+    setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"L'épreuve", r:"ex" }], sub);
   }
   function exStart(){
     RUN = null; stopClock();
@@ -1497,7 +1575,7 @@
              + 'Commencer</button></div>'
              + '<div class="row"><button class="btn ghost sm" data-go="di">'
              + 'Choose a different subtopic</button></div>'
-           : '<h3>First, which subtopic are you taking in?</h3>'
+           : '<p class="note">First, which subtopic are you taking in?</p>'
              + topicTiles("ex:start:"))
       + shellNote() + foot();
     if (t) $("goRun").onclick = function(){
