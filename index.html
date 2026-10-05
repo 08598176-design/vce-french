@@ -391,6 +391,34 @@
   audio{width:100%;margin-top:8px}
   .note{font-size:14px;color:var(--muted);margin-top:6px}
 
+  /* ---------- the reel ----------
+     Three slots tall, the middle one ruled off as the one that counts, and
+     the top and bottom faded so the drum reads as continuing past the
+     window rather than ending at it. touch-action is the important line:
+     without it a flick scrolls the page instead of turning the drum. */
+  .rwin{position:relative;height:192px;overflow:hidden;background:var(--paper);
+        border:1px solid var(--line);border-radius:4px;
+        touch-action:none;cursor:grab;
+        -webkit-user-select:none;user-select:none;
+        -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 24%,
+                           #000 76%,transparent 100%);
+        mask-image:linear-gradient(to bottom,transparent 0,#000 24%,
+                   #000 76%,transparent 100%)}
+  .reel.spinning .rwin{cursor:default}
+  .rwin:active{cursor:grabbing}
+  .rstrip{will-change:transform}
+  .ritem{height:64px;display:flex;flex-direction:column;align-items:center;
+         justify-content:center;gap:1px;text-align:center;padding:0 10px}
+  .ritem b{font-family:var(--display);font-size:22px;font-weight:600;
+           line-height:1.15;white-space:nowrap;overflow:hidden;
+           text-overflow:ellipsis;max-width:100%}
+  .ritem i{font-style:normal;font-size:12px;color:var(--muted);
+           letter-spacing:.04em}
+  .rmark{position:absolute;left:0;right:0;top:64px;height:64px;
+         pointer-events:none;border-top:2px solid var(--deep);
+         border-bottom:2px solid var(--deep);background:rgba(39,49,138,.05)}
+  .reel{margin:4px 0 12px}
+
   /* ---------- the discussion image ---------- */
   .shot{width:100%;border-radius:11px;border:1px solid var(--line);display:block}
   .shotwrap{position:relative;margin-bottom:10px}
@@ -782,6 +810,156 @@
          + '" aria-label="What is this?">?</button>';
   }
 
+  /* ================= the reel =================
+     A poker-machine drum rather than a Wheel of Fortune. On a wheel the
+     labels sit at every angle and shrink to fit a wedge, which is the wrong
+     thing to do to words a student is still learning to read. On a drum
+     they stay horizontal and full size, and the list can be any length.
+
+     The physics is real, because a thing that eases along a curve feels
+     like a menu and a thing that coasts feels like a wheel.
+
+       coast   v decays against two forces: viscous drag, which takes a
+               fixed proportion of the speed each second and gives the long
+               smooth run-down, and dry friction, a constant scrape that
+               actually brings it to rest rather than letting it creep
+               forever. v' = -(SLOW*v + DRAG*sign(v)).
+       catch   below CATCH the drum is slow enough to be pulled, and a
+               spring takes over towards the nearest detent.
+       settle  a damped spring, a' = -K*x - C*v, with C a little under
+               critical so it overshoots by about a tenth of a slot and
+               comes back. That small bounce is the whole difference
+               between landing and stopping.
+
+     About 0.9s of coasting and half a second of settling, so a spin is
+     over in about a second and a half: long enough to watch, short enough
+     to do thirty times in a lesson.
+
+     The tick is one detent passing the window, throttled so that at full
+     speed it cannot machine-gun; as the drum slows the ticks space out on
+     their own, which is the sound doing the work rather than a sound
+     effect pretending to. */
+  var REEL = (function(){
+    var H = 64, raf = 0;
+    function reduced(){
+      try { return matchMedia("(prefers-reduced-motion: reduce)").matches; }
+      catch (e){ return false; }
+    }
+    function cancel(){ if (raf) cancelAnimationFrame(raf); raf = 0; }
+
+    function mount(box, items, onLand){
+      var L = items.length, SPAN = L * H;
+      var win = box.querySelector(".rwin"), strip = box.querySelector(".rstrip");
+      var three = "";
+      for (var c = 0; c < 3; c++){
+        three += items.map(function(it){
+          return '<div class="ritem"><b>' + it.html + '</b>'
+               + (it.sub ? '<i>' + it.sub + '</i>' : '') + '</div>';
+        }).join("");
+      }
+      strip.innerHTML = three;
+
+      var SLOW = 2.4, DRAG = 90, CATCH = 300, K = 150, C = 16;
+      var pos = 0, v = 0, target = null, last = 0, lastTick = 0, lastDetent = 0;
+      var spinning = false;
+
+      function wrap(x){ return ((x % SPAN) + SPAN) % SPAN; }
+      function paint(){
+        strip.style.transform =
+          "translate3d(0," + (H - SPAN - wrap(pos)).toFixed(2) + "px,0)";
+      }
+      function at(){ return Math.round(wrap(pos) / H) % L; }
+      function ticks(now){
+        var d = Math.floor(wrap(pos) / H);
+        if (d !== lastDetent){
+          lastDetent = d;
+          if (now - lastTick > 26){ lastTick = now; CLICK.play(); }
+        }
+      }
+      function done(){
+        spinning = false;
+        box.classList.remove("spinning");
+        if (onLand) onLand(items[at()], at());
+      }
+      function frame(now){
+        var dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
+        last = now;
+        if (target === null){
+          var sgn = v < 0 ? -1 : 1;
+          v -= (SLOW * v + DRAG * sgn) * dt;
+          if (v * sgn < 0) v = 0;
+          pos += v * dt;
+          if (Math.abs(v) < CATCH) target = Math.round(pos / H) * H;
+        } else {
+          v += (-K * (pos - target) - C * v) * dt;
+          pos += v * dt;
+          if (Math.abs(pos - target) < 0.4 && Math.abs(v) < 8){
+            pos = target; v = 0;
+            paint(); done(); return;
+          }
+        }
+        paint(); ticks(now);
+        raf = requestAnimationFrame(frame);
+      }
+      function launch(v0){
+        cancel();
+        target = null; v = v0; last = 0;
+        spinning = true;
+        box.classList.add("spinning");
+        if (reduced()){
+          pos = Math.round((pos + v0 * 0.35) / H) * H;
+          paint(); done(); return;
+        }
+        raf = requestAnimationFrame(frame);
+      }
+
+      /* A flick, for a finger. The velocity is taken from the last few
+         milliseconds rather than the whole gesture, so a slow drag that
+         ends in a snap throws the drum and a slow drag that ends still
+         does not. */
+      var grab = null;
+      win.addEventListener("pointerdown", function(ev){
+        cancel(); spinning = false; box.classList.remove("spinning");
+        v = 0; target = null;
+        grab = { y:ev.clientY, pos:pos, t:performance.now(),
+                 ly:ev.clientY, lt:performance.now(), v:0, moved:0 };
+        try { win.setPointerCapture(ev.pointerId); } catch (e){}
+      });
+      win.addEventListener("pointermove", function(ev){
+        if (!grab) return;
+        ev.preventDefault();
+        pos = grab.pos - (ev.clientY - grab.y);
+        grab.moved += Math.abs(ev.clientY - grab.ly);
+        var now = performance.now(), dt = now - grab.lt;
+        if (dt > 6){
+          grab.v = -(ev.clientY - grab.ly) / dt * 1000;
+          grab.ly = ev.clientY; grab.lt = now;
+        }
+        paint(); ticks(now);
+      });
+      function release(){
+        if (!grab) return;
+        var fling = grab.v, stale = performance.now() - grab.lt > 90;
+        grab = null;
+        if (stale || Math.abs(fling) < 200){ launch(0); return; }
+        launch(Math.max(-7000, Math.min(7000, fling)));
+      }
+      win.addEventListener("pointerup", release);
+      win.addEventListener("pointercancel", release);
+
+      paint();
+      return {
+        /* The button spin. A random amount of energy, so it is not the same
+           throw every time, and always downward so the list reads the way
+           it would if you had flicked it up yourself. */
+        spin: function(){ launch(2400 + Math.random() * 1300); },
+        at: at,
+        spinning: function(){ return spinning; }
+      };
+    }
+    return { mount: mount, cancel: cancel };
+  })();
+
   /* ---- the clack a tile makes ---- */
   var CLICK = (function(){
     var ctx = null, noise = null;
@@ -943,7 +1121,7 @@
   }
   function stopClock(){ clearInterval(clockTimer); clockTimer = null; }
   function draw(){
-    SAY.stop(); stopClock(); paintNav();
+    SAY.stop(); stopClock(); REEL.cancel(); paintNav();
     var fn = RENDER[tabOf(route)] || RENDER.home;
     $("main").innerHTML = "";
     fn(route.split(":").slice(1));
@@ -1115,6 +1293,7 @@
   }
   var qFilter = "all";
   RENDER.q = function(args){
+    if (args[0] === "spin") return qSpin();
     if (args[0]) return qOne(args[0]);
     setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" }, { fr:"Questions", r:"q" }],
             "Section 1, the conversation");
@@ -1126,6 +1305,8 @@
       + 'question, then your own world, then French itself, then the wider '
       + 'French-speaking world. Tap a question for follow-ups and three '
       + 'answers to the same question.</p>'
+      + '<div class="row"><button class="btn wide" data-go="q:spin">'
+      + 'Spin for a topic</button></div>'
       + '<div class="filters">'
       + '<button class="chip' + (qFilter === "all" ? " on" : "") + '" data-f="all">'
       + 'All ' + QD.questions.length + '</button>'
@@ -1149,6 +1330,67 @@
     });
     after();
   };
+  /* The reel. Lands on one of the eight things the conversation is about,
+     then hands over an actual question from it, because a topic on its own
+     is not practice. */
+  var spun = null;
+  function qSpin(){
+    var CT = QD.conversation_topics || [];
+    setHead([{ fr:"\u00ab\u202fL'oral\u202f\u00bb", r:"home" },
+             { fr:"Questions", r:"q" }, { fr:"La roue", r:"q:spin" }],
+            "Spin for a topic, then answer it cold");
+    $("main").innerHTML =
+        '<p class="lede">Flick the drum or press the button, and answer '
+      + 'whatever it gives you out loud before you look at anything else.'
+      + qmark("The assessors do not work through a list, and you do not get "
+        + "to choose. Every report from 2020 on says the same thing: the "
+        + "wording will not be the wording you practised. This is the "
+        + "cheapest way to practise being asked something you did not "
+        + "pick.") + '</p>'
+      + '<div class="reel" id="reel"><div class="rwin">'
+      + '<div class="rstrip"></div><div class="rmark"></div></div></div>'
+      + '<div class="row"><button class="btn wide" id="spinBtn">'
+      + 'Tourner la roue</button></div>'
+      + '<div id="spinOut"></div>'
+      + foot();
+    var R = REEL.mount($("reel"), CT.map(function(t){
+      return { html: esc(t.fr), sub: esc(t.en), id: t.id };
+    }), function(item){
+      spun = item.id;
+      showSpun(item);
+    });
+    $("spinBtn").onclick = function(){
+      if (R.spinning()) return;
+      SAY.stop();
+      $("spinOut").innerHTML = "";
+      R.spin();
+    };
+    if (spun) showSpun(null);
+    after();
+  }
+  function showSpun(item){
+    var CT = QD.conversation_topics || [], t = null;
+    CT.forEach(function(x){ if (x.id === (item ? item.id : spun)) t = x; });
+    if (!t) return;
+    var pool = QD.questions.filter(function(q){ return q.topic === t.id; });
+    var q = pool[Math.floor(Math.random() * pool.length)];
+    $("spinOut").innerHTML =
+        '<h3>' + esc(t.fr) + ' <span class="tier">' + esc(t.en) + '</span></h3>'
+      + recordBlock("spin-" + q.id)
+      + '<div class="qrow"><div class="card">'
+      + '<span class="frtext">' + esc(q.question_fr) + '</span>'
+      + enLine(q.question_en) + '</div>' + saybtn(q.question_fr) + '</div>'
+      + '<div class="row">'
+      + (pool.length > 1
+          ? '<button class="btn ghost sm" id="another">Another on this topic</button>'
+          : '')
+      + '<button class="btn ghost sm" data-go="q:' + esc(q.id) + '">'
+      + 'Follow-ups and answers</button></div>';
+    if ($("another")) $("another").onclick = function(){ SAY.stop(); showSpun(null); };
+    after();
+    if (item) SAY.speak(q.question_fr);
+  }
+
   function qOne(id){
     var q = null;
     QD.questions.forEach(function(x){ if (x.id === id) q = x; });
