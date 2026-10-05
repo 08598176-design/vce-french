@@ -1,0 +1,20 @@
+{
+  "name": "L'oral VCE French Oral Exam Practice",
+  "short_name": "L'oral",
+  "description": "VCE French Second Language oral examination practice: Section 1 questions with answers at three levels, the whole examination on the clock, a worked subtopic for the discussion, useful phrases, and self-marking against the criteria. Works with no signal.",
+  "start_url": "./",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef1f5",
+  "theme_color": "#16375e",
+  "lang": "en-AU",
+  "dir": "ltr",
+  "categories": ["education"],
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

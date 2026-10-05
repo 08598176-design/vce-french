@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en-AU" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="google" content="notranslate">
+<meta name="theme-color" content="#16375e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Oral français">
+<title>Oral français — VCE practice</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<style>
+  /* A Year 12 student practising on a phone, often standing up, often the
+     night before. Nothing below 15px, body copy at 17, tap targets at 44.
+     The navigation is at the top because that is where a thumb looks first on
+     a page you are reading rather than scrolling through. */
+  :root{
+    --bg:#eef1f5; --paper:#ffffff; --ink:#15191f; --muted:#4a5464;
+    --line:#ccd5e0; --line-soft:#e3e9f0;
+    --deep:#16375e;          /* the navy that carries every control */
+    --accent:#a83232;        /* a correction, a warning, time running out */
+    --ok:#2f6a3e;            /* something right, something done */
+    --tip:#fff8e1;           /* an examiner tip, quoted from a report */
+    --tipline:#e0cf9a;
+    --c1:#d9edf1; --c2:#fbe3e8; --c3:#dcecdc; --c4:#e4e1f0;
+    --c5:#f6d9c8; --c6:#dde9f5;
+    --shadow:0 2px 10px rgba(0,0,0,.07);
+    /* The six section colours are traditional Japanese ones, pastel so that
+       the ink on them is dark: 空色, 一斤染, 玉子色, 藤色, 青磁色, 若緑.
+       Each tab hands in its own pair as --c (the pane) and --ci (the ink on
+       it), so no colour is named anywhere but in TABS. */
+    --font-en:Calibri,Carlito,'Segoe UI',Tahoma,Geneva,Verdana;
+    --font:var(--font-en),sans-serif;
+    --spk:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2316375e' d='M4 9v6h4l5 4V5L8 9H4zm12.5 3c0-1.6-.9-2.9-2.2-3.6v7.2c1.3-.7 2.2-2 2.2-3.6zM14.3 4.4v1.9c2.6.8 4.5 3.2 4.5 6s-1.9 5.2-4.5 6v1.9c3.6-.9 6.3-4.2 6.3-7.9s-2.7-7.1-6.3-7.9z'/%3E%3C/svg%3E");
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  /* Two soft washes under everything, so a translucent tile has something
+     behind it worth blurring. Fixed, so they do not slide as the page
+     scrolls and make the glass look painted on. */
+  body{font-family:var(--font);color:var(--ink);
+       line-height:1.6;font-size:17px;overflow-wrap:break-word;
+       background:
+         radial-gradient(900px 520px at 12% -12%, #e2ecf7 0%, transparent 62%),
+         radial-gradient(760px 420px at 96% 6%, #f6e9ec 0%, transparent 58%),
+         var(--bg);
+       background-attachment:fixed}
+
+  /* ---------- top bar ---------- */
+  .top{position:sticky;top:0;z-index:40;background:var(--paper);
+       border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+  .bar{display:flex;align-items:center;gap:10px;padding:9px 14px 8px;
+       min-height:54px;max-width:720px;margin:0 auto}
+  .htitle{min-width:0;flex:1}
+  .crumb{font-size:17.5px;font-weight:700;line-height:1.25;
+         white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb button{border:0;background:none;padding:0;font-family:inherit;
+         font-size:15px;font-weight:600;color:var(--deep);cursor:pointer;
+         -webkit-appearance:none;appearance:none;
+         text-decoration:underline;text-underline-offset:3px}
+  .crumb .sep{color:var(--muted);opacity:.7;margin:0 5px;font-weight:400}
+  .htitle .en{font-size:13.5px;color:var(--muted);line-height:1.3;
+              white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* The two always-on controls, in the same white-on-navy-border style as
+     the trip app so the whole set reads as one family. 44px square. */
+  .tool{flex:none;width:44px;height:44px;border:2px solid var(--deep);
+        border-radius:11px;background:#fff;color:var(--deep);cursor:pointer;
+        font-family:var(--font);font-weight:800;font-size:16px;line-height:1;
+        display:flex;align-items:center;justify-content:center;padding:0}
+  .tool.off{opacity:.45}
+  /* kana is a word, not a letter, so its button is wider than square. */
+  .tool.wide{width:auto;min-width:54px;padding:0 8px;font-size:13px;
+        font-family:var(--font);line-height:1.1}
+  @media (max-width:360px){ .tool.wide{font-size:11.5px;padding:0 5px} }
+  .tool small{font-size:11px;font-weight:700;display:block}
+  .tool svg{width:23px;height:23px}
+  .tool .ic{fill:none;stroke:currentColor;stroke-width:2.2;
+            stroke-linecap:round;stroke-linejoin:round}
+  .tool .icf{fill:currentColor;stroke:none}
+
+  /* ---------- the tab row ----------
+     A coloured tile with a word under it, the way a phone labels an app:
+     the colour is what a student navigates by after a week, the word is
+     what tells them on the first day. Each tab hands in its own two
+     colours as --c/--ci, so no colour is named here. Labels are allowed
+     two lines and the box is two lines tall either way, so the row does
+     not change height between tabs. */
+  nav{border-top:1px solid var(--line-soft);background:var(--paper)}
+  .navin{display:flex;max-width:720px;margin:0 auto}
+  nav button{flex:1;min-width:0;border:0;cursor:pointer;
+             padding:7px 2px 6px;display:flex;flex-direction:column;
+             align-items:center;gap:3px;font-family:var(--font);
+             color:var(--ci);
+             background:linear-gradient(170deg,rgba(255,255,255,.62),
+                        rgba(255,255,255,0) 58%),var(--c);
+             box-shadow:inset 0 1px 0 rgba(255,255,255,.75),
+                        inset -1px 0 0 rgba(255,255,255,.5);
+             opacity:.58;transition:opacity .14s}
+  nav button:last-child{box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}
+  nav button svg{width:22px;height:22px;display:block}
+  nav button .ic{stroke-width:2.6}
+  nav button .lab{font-size:10.5px;line-height:1.15;font-weight:700;
+             height:2.3em;text-align:center;letter-spacing:-.1px}
+  /* The one you are on is the one at full strength. Every other pane keeps
+     its colour, dimmed, so the row stays a row of six places rather than one
+     button and five gaps. */
+  nav button.on{opacity:1;box-shadow:inset 0 2px 0 var(--ci),
+             inset 0 3px 0 rgba(255,255,255,.55)}
+  nav button:active{filter:brightness(.94)}
+  .ic{fill:none;stroke:currentColor;stroke-width:2.4;
+      stroke-linecap:round;stroke-linejoin:round}
+  .icf{fill:currentColor;stroke:none}
+
+  main{max-width:720px;margin:0 auto;padding:14px 14px 70px}
+  h2{font-size:21px;line-height:1.3;margin:2px 0 10px}
+  h2 .en{display:block;font-size:13.5px;font-weight:400;color:var(--muted);
+         margin-top:2px}
+  h3{font-size:17px;margin:18px 0 8px}
+  p{margin:0 0 10px}
+  .lede{color:var(--muted);font-size:15.5px;margin-bottom:14px}
+
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:13px;
+        padding:13px 14px;margin:0 0 11px;box-shadow:var(--shadow)}
+  .card.flat{box-shadow:none}
+  button.card{display:block;width:100%;text-align:left;cursor:pointer;
+              font-family:var(--font);font-size:17px;color:inherit;
+              line-height:1.5}
+  /* A question in the list does two things, so it needs two targets: the
+     card opens it, the play button beside it speaks the question. One tap
+     cannot mean both. */
+  .qrow{position:relative}
+  .qrow>.card{padding-bottom:48px}
+  .playbtn{position:absolute;right:10px;bottom:10px;width:44px;height:44px;
+       border:2px solid var(--deep);border-radius:11px;background:#fff;
+       cursor:pointer;padding:0}
+  .playbtn:after{content:"";display:block;width:21px;height:21px;margin:0 auto;
+       background:var(--spk) center/contain no-repeat}
+  body:not(.hasvoice) .playbtn{display:none}
+  body:not(.hasvoice) .qrow>.card{padding-bottom:13px}
+  .frtext{font-family:var(--font);font-size:19px;
+       line-height:2.05;display:block}
+
+  /* How hard to pitch a run. Four choices in one row, so the whole decision
+     is one tap and the page does not grow a paragraph to explain it. */
+  /* The home page: the same six colours as the tab row, as full blocks, so
+     a student learns the colour once and navigates by it afterwards. */
+  /* Six squares that join, as one sheet of glass divided into panes
+     rather than six separate buttons. The seams are white hairlines, not
+     gaps: a gap makes six objects, a seam makes one. */
+  .blocks{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:4px 0 16px;
+          border-radius:20px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.13)}
+  @media (min-width:560px){ .blocks{grid-template-columns:1fr 1fr 1fr} }
+  .block{aspect-ratio:1;display:flex;flex-direction:column;
+         align-items:center;justify-content:center;text-align:center;
+         gap:7px;border:0;border-radius:0;padding:12px 13px;cursor:pointer;
+         font-family:var(--font);color:var(--ci);
+         background:linear-gradient(165deg,rgba(255,255,255,.72),
+                    rgba(255,255,255,.08) 52%,rgba(255,255,255,0) 70%),var(--c);
+         box-shadow:inset 0 1px 0 rgba(255,255,255,.85),
+                    inset 1px 0 0 rgba(255,255,255,.45),
+                    inset -1px 0 0 rgba(255,255,255,.45),
+                    inset 0 -1px 0 rgba(255,255,255,.35);
+         transition:filter .13s}
+  .block:active{filter:brightness(.93) saturate(1.1)}
+  .block .bi{display:flex;align-items:center;justify-content:center}
+  .block svg{width:34px;height:34px}
+  .block .ic{stroke-width:2.3}
+  .block .bt{font-size:17px;font-weight:800;line-height:1.15}
+  .block .bd{font-size:12.5px;line-height:1.3;opacity:.95}
+  @media (max-width:340px){
+    .block .bt{font-size:15.5px} .block .bd{font-size:11.5px}
+    .block svg{width:29px;height:29px}
+  }
+
+  /* One screen does all four recognition rounds: a prompt, a column of
+     options, and the reason you were wrong. The options are full width
+     because half of them carry a Japanese sentence and a play button. */
+  .opt{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;
+       width:100%;text-align:left;background:var(--paper);color:inherit;
+       border:2px solid var(--line);border-radius:12px;padding:11px 12px;
+       margin-bottom:8px;font-family:var(--font);font-size:16.5px;
+       cursor:pointer;
+       line-height:1.4;cursor:pointer;min-height:52px}
+  .opt .oen{display:block;font-size:13.5px;color:var(--muted);margin-top:2px}
+  .opt.pick{border-color:var(--deep)}
+  .opt.yes{border-color:var(--ok);background:#f1f8f2}
+  .opt.no{border-color:var(--accent);background:#fdf2f2}
+  .opt.dim{opacity:.55}
+  .opt .mark{font-size:20px;font-weight:800;line-height:1}
+  .opt.yes .mark{color:var(--ok)} .opt.no .mark{color:var(--accent)}
+  .opt .spk{flex:none;width:40px;height:40px;border:2px solid var(--deep);
+       border-radius:10px;background:#fff;cursor:pointer;padding:0}
+  .opt .spk:after{content:"";display:block;width:19px;height:19px;margin:0 auto;
+       background:var(--spk) center/contain no-repeat}
+  body:not(.hasvoice) .opt .spk{display:none}
+  .why{border-left:4px solid var(--line);padding:6px 11px;margin:2px 0 12px;
+       font-size:15px;color:var(--muted)}
+  .why.yes{border-color:var(--ok)} .why.no{border-color:var(--accent)}
+  .scorebar{display:flex;align-items:baseline;gap:9px;margin:0 0 12px;
+       font-size:14.5px;color:var(--muted)}
+  .scorebar b{font-size:19px;color:var(--ink)}
+
+  /* The topic the student picked, shown wherever it governs what happens
+     next, with its words one tap away: the mock assessors' first note was
+     that a student without the vocabulary cannot explain their research. */
+  .mytopic{border:2px solid var(--deep);border-radius:13px;padding:10px 13px;
+       margin:2px 0 12px;background:var(--paper)}
+  .mytopic>b{font-size:19px;margin-right:7px}
+  .mytopic>span{display:block;font-size:14px;color:var(--muted);margin-top:2px}
+  .mytopic details{margin-top:8px}
+  .lnk{border:0;background:none;padding:0;font-family:var(--font);
+       font-size:14px;color:var(--deep);font-weight:700;cursor:pointer;
+       text-decoration:underline;text-underline-offset:3px}
+  .vrow{padding:4px 0;border-bottom:1px solid var(--line-soft)}
+  .vrow:last-child{border-bottom:0}
+
+  /* A script card: who says the line matters more than anything else on
+     the entry and exit screens, so it is a label rather than a colour. */
+  .card .who{font-size:11.5px;font-weight:800;letter-spacing:.06em;
+       text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+  .card.mine{border-left:4px solid var(--deep)}
+  .card.mine .who{color:var(--deep)}
+
+  /* The eight directions an assessor can go, as buttons the student picks
+     from while the clock runs. Two columns on anything but the narrowest
+     phone: eight choices in one column is a scroll, and scrolling is time. */
+  .moves{display:grid;grid-template-columns:1fr;gap:8px;margin:6px 0 14px}
+  @media (min-width:360px){ .moves{grid-template-columns:1fr 1fr} }
+  .movebtn{text-align:left;border:2px solid var(--line);border-radius:12px;
+       background:var(--paper);color:inherit;padding:10px 11px;cursor:pointer;
+       font-family:var(--font);min-height:62px}
+  .movebtn b{display:block;font-size:15.5px;line-height:1.2}
+  .movebtn i{display:block;font-style:normal;font-size:14px;color:var(--deep);
+       margin-top:1px}
+  .movebtn span{display:block;font-size:12.5px;color:var(--muted);
+       line-height:1.3;margin-top:3px}
+  .movebtn[disabled]{opacity:.38;cursor:default}
+
+  .segs{display:flex;gap:6px;margin:4px 0 6px}
+  .seg{flex:1;min-width:0;min-height:44px;padding:6px 4px;border:1.5px solid var(--line);
+       border-radius:11px;background:var(--paper);color:var(--muted);cursor:pointer;
+       font-family:var(--font);font-size:14px;font-weight:600;line-height:1.2}
+  .seg.on{background:var(--deep);border-color:var(--deep);color:#fff;font-weight:700}
+  .seghint{font-size:14.5px;color:var(--muted);margin:0 0 12px}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+         gap:10px;margin-bottom:12px}
+  .tile{border:1px solid var(--line);border-radius:13px;padding:12px 13px;
+        cursor:pointer;font-family:var(--font);font-size:16.5px;text-align:left;
+        color:inherit;line-height:1.4;box-shadow:var(--shadow)}
+  .tile b{display:block;font-size:17px}
+  .tile i.what{margin-top:4px;color:var(--ink);opacity:.8;font-size:13.5px}
+  .tile i{display:block;font-style:normal;font-size:13px;color:var(--muted);
+          margin-top:3px}
+  .tile:nth-child(6n+1){background:var(--c1)} .tile:nth-child(6n+2){background:var(--c2)}
+  .tile:nth-child(6n+3){background:var(--c3)} .tile:nth-child(6n+4){background:var(--c4)}
+  .tile:nth-child(6n+5){background:var(--c5)} .tile:nth-child(6n){background:var(--c6)}
+
+  /* ---------- French lines, every one of them tappable ---------- */
+  .fr{font-family:var(--font);font-size:19px;
+      line-height:2.05;cursor:pointer;display:block;position:relative;
+      padding-right:30px}
+  .fr:after{content:"";position:absolute;right:0;top:.45em;width:19px;height:19px;
+            background:var(--spk) center/contain no-repeat;opacity:.5}
+  body:not(.hasvoice) .fr{cursor:default;padding-right:0}
+  body:not(.hasvoice) .fr:after{display:none}
+  .fr.live{background:#fff6cf;border-radius:5px}
+  body.noen .en{display:none}
+  .en{font-size:15px;color:var(--muted);line-height:1.45}
+  .novoice{display:none;background:var(--tip);border:1px solid var(--tipline);
+           border-radius:10px;padding:9px 11px;font-size:14.5px;margin-bottom:12px}
+  body:not(.hasvoice) .novoice{display:block}
+
+  /* ---------- filters ---------- */
+  .filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .chip{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;
+        padding:6px 12px;font-family:var(--font);font-size:14.5px;cursor:pointer;
+        color:var(--muted);min-height:36px}
+  .chip.on{background:var(--deep);border-color:var(--deep);color:#fff;font-weight:600}
+  .fgroup{width:100%;font-size:12.5px;text-transform:uppercase;
+          letter-spacing:.06em;color:var(--muted);margin:4px 0 -2px}
+
+  /* ---------- one question ---------- */
+  .qmeta{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+  .pill{font-size:12.5px;background:var(--line-soft);border-radius:999px;
+        padding:3px 9px;color:var(--muted)}
+  .pill.ho{background:#ffe4e4;color:#8c2222;font-weight:600}
+  .tip{background:var(--tip);border:1px solid var(--tipline);border-radius:11px;
+       padding:11px 12px;margin:12px 0;font-size:15px}
+  .tip b{display:block;font-size:12.5px;text-transform:uppercase;
+         letter-spacing:.06em;color:#7a6320;margin-bottom:4px}
+  .tip q{font-style:italic}
+  details{border:1px solid var(--line);border-radius:11px;padding:0;
+          margin:0 0 9px;background:var(--paper)}
+  /* Block, not flex. A flex summary makes every inline run inside it a flex
+     item, which breaks a word with readings into one piece per character. */
+  details>summary{cursor:pointer;padding:11px 32px 11px 13px;font-weight:600;
+          list-style:none;display:block;position:relative;line-height:1.9}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary:after{content:"\25bc";position:absolute;right:13px;top:13px;
+          font-size:11px;color:var(--muted);transition:transform .15s}
+  details[open]>summary:after{transform:rotate(180deg)}
+  details>summary .tier{margin-left:7px}
+  .dbody{padding:0 13px 12px}
+  .tier{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;
+        color:var(--muted)}
+  .vocab{list-style:none;font-size:15.5px}
+  .vocab li{padding:4px 0;border-bottom:1px solid var(--line-soft)}
+  .vocab li:last-child{border:0}
+  .vocab b{font-family:var(--font);font-size:17px}
+  .gram{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}
+  .gram span{font-size:14px;background:#eaf0f7;border-radius:7px;padding:3px 8px;
+             font-family:var(--font)}
+
+  /* ---------- buttons ---------- */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+       border:2px solid var(--deep);background:var(--deep);color:#fff;
+       border-radius:11px;padding:11px 16px;font-family:var(--font);
+       font-size:16px;font-weight:600;cursor:pointer;min-height:46px}
+  .btn.ghost{background:#fff;color:var(--deep)}
+  .btn.warn{border-color:var(--accent);background:var(--accent)}
+  .btn.wide{width:100%}
+  .btn[disabled]{opacity:.45;cursor:default}
+  .row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+
+  /* ---------- the mock examination ---------- */
+  .clock{position:sticky;top:0;z-index:5;display:flex;align-items:center;
+         gap:10px;background:var(--deep);color:#fff;border-radius:11px;
+         padding:9px 13px;margin-bottom:12px;font-variant-numeric:tabular-nums}
+  .clock b{font-size:25px;font-weight:700;letter-spacing:.02em}
+  .clock span{font-size:13.5px;opacity:.9}
+  .clock.low{background:var(--accent)}
+  .hidden-q{background:#f3f6fa;border:1px dashed var(--line);border-radius:11px;
+            padding:16px 14px;text-align:center;color:var(--muted);font-size:15px}
+  .chain{list-style:none;margin:10px 0 0}
+  .chain li{padding:8px 0;border-top:1px solid var(--line-soft)}
+  .step{font-size:12.5px;color:var(--muted);text-transform:uppercase;
+        letter-spacing:.06em}
+
+  /* ---------- recording ---------- */
+  .rec{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);
+       animation:pulse 1.1s infinite}
+  @keyframes pulse{50%{opacity:.25}}
+  audio{width:100%;margin-top:8px}
+  .note{font-size:14px;color:var(--muted);margin-top:6px}
+
+  /* ---------- the discussion image ---------- */
+  .shot{width:100%;border-radius:11px;border:1px solid var(--line);display:block}
+  .shotwrap{position:relative;margin-bottom:10px}
+  /* The voice list. A sheet rather than a screen: it is a setting, and you
+     want to be back where you were straight afterwards. */
+  .sheet{position:fixed;inset:0;z-index:65;background:rgba(10,15,22,.45);
+         display:none;align-items:flex-end;justify-content:center}
+  .sheet.on{display:flex}
+  .sheet-in{background:var(--paper);width:100%;max-width:560px;
+            border-radius:16px 16px 0 0;padding:16px 16px 20px;
+            padding-bottom:calc(20px + env(safe-area-inset-bottom));
+            max-height:82vh;overflow:auto}
+  .sheet .band{width:100%;margin-bottom:7px}
+  .full{position:fixed;inset:0;z-index:60;background:#000;display:none}
+  .full.on{display:flex;align-items:center;justify-content:center}
+  .full img{max-width:100%;max-height:100%;object-fit:contain}
+  .full .x{position:absolute;top:calc(env(safe-area-inset-top) + 10px);right:10px}
+  textarea{width:100%;font-family:var(--font);font-size:16px;line-height:1.6;
+           border:1px solid var(--line);border-radius:10px;padding:10px;
+           min-height:92px;background:var(--paper);color:var(--ink)}
+  input[type=text]{width:100%;font-family:var(--font);font-size:17px;
+           border:1px solid var(--line);border-radius:10px;padding:10px;
+           background:var(--paper);color:var(--ink)}
+  label{display:block;font-size:14px;color:var(--muted);margin:10px 0 4px}
+
+  /* ---------- self assessment ---------- */
+  .bands{display:grid;gap:7px;margin:8px 0 0}
+  .band{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);
+        border-radius:10px;padding:9px 11px;cursor:pointer;background:var(--paper);
+        font-family:var(--font);font-size:15px;text-align:left;color:inherit;
+        line-height:1.45}
+  .band.on{border-color:var(--deep);background:#eaf0f7}
+  .band b{flex:none;font-size:15px;color:var(--deep);min-width:38px}
+  .mark{font-size:30px;font-weight:700;color:var(--deep)}
+
+  /* ---------- drills ---------- */
+  .drillq{font-size:19px;font-family:var(--font);
+          line-height:2}
+  .reveal{display:none}
+  .reveal.on{display:block}
+  /* A correction. Labelled in words, with a bar down the side: a colour on
+     its own is no use to a reader who cannot see it, and a line through a
+     whole question-and-answer pair reads as though the question was wrong. */
+  .pair{display:grid;gap:7px;margin:7px 0 0}
+  .side{border-left:4px solid;border-radius:0 9px 9px 0;padding:5px 10px;
+        background:#fafbfd}
+  .side>b{display:block;font-size:12.5px;text-transform:uppercase;
+          letter-spacing:.06em;font-weight:700}
+  .side.no{border-color:var(--accent)} .side.no>b{color:var(--accent)}
+  .side.yes{border-color:var(--ok)} .side.yes>b{color:var(--ok)}
+  .score{font-size:14px;color:var(--muted)}
+
+  .updatebar{position:fixed;left:0;right:0;bottom:0;z-index:70;display:none;
+     background:var(--deep);color:#fff;padding:11px 14px;
+     padding-bottom:calc(11px + env(safe-area-inset-bottom));
+     font-size:15px;align-items:center;gap:10px;justify-content:center;
+     flex-wrap:wrap}
+  .updatebar.on{display:flex}
+  .updatebar button{border:2px solid #fff;background:none;color:#fff;
+     border-radius:9px;padding:7px 13px;font-family:var(--font);font-size:15px;
+     font-weight:600;cursor:pointer}
+  /* The credits are a footnote, not a paragraph. Small enough to stop
+     competing with the work on the page, still large enough to read if
+     somebody goes looking for where the content came from. */
+  .foot{color:var(--muted);font-size:10.5px;line-height:1.45;margin-top:26px;
+        border-top:1px solid var(--line-soft);padding-top:8px;opacity:.75}
+
+  /* ---------- the ? and its popup ----------
+     Pages were carrying a paragraph of instructions that most students read
+     once and then scrolled past every time after. The instructions are now
+     behind this: hover on a mouse, tap on a phone, and the same popup
+     either way. Nothing is hidden that a student needs in order to start,
+     only the explanation of something already in front of them. */
+  .qmark{flex:none;width:24px;height:24px;border-radius:50%;cursor:pointer;
+       border:1.5px solid var(--line);background:var(--paper);
+       color:var(--muted);font-family:var(--font);font-size:14px;
+       font-weight:800;line-height:1;padding:0;display:inline-flex;
+       align-items:center;justify-content:center;vertical-align:middle}
+  .qmark:hover,.qmark:focus{border-color:var(--deep);color:var(--deep);
+       outline:none}
+  h2 .qmark,h3 .qmark{margin-left:7px}
+  /* A newline in the text becomes a line break, so a list of rules reads
+     as a list rather than a paragraph. Tall ones scroll rather than running
+     off the top of a phone. */
+  .tip-pop{position:fixed;z-index:120;display:none;background:var(--deep);
+       color:#fff;border-radius:11px;padding:10px 13px;font-size:14.5px;
+       line-height:1.45;box-shadow:0 6px 22px rgba(0,0,0,.3);
+       font-family:var(--font);white-space:pre-line;
+       max-height:70vh;overflow-y:auto;overscroll-behavior:contain}
+  .tip-pop.on{display:block}
+
+  /* ---------- recording ----------
+     At the top of the page, because it is the thing a student does before
+     answering rather than after reading. Red and round, so it reads as a
+     record button and not as another navigation choice. */
+  .recbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+       margin:0 0 12px}
+  .recbtn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+       border:2px solid var(--accent);background:#fff;color:var(--accent);
+       border-radius:11px;padding:0 14px;min-height:44px;
+       font-family:var(--font);font-size:15.5px;font-weight:700}
+  .recbtn .rdot{width:13px;height:13px;border-radius:50%;
+       background:var(--accent);flex:none}
+  .recbtn.on{background:var(--accent);color:#fff}
+  .recbtn.on .rdot{background:#fff;animation:pulse 1.1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .recbar audio{height:38px;max-width:100%}
+  .btn.sm{min-height:44px;padding:0 13px;font-size:15px}
+  @media (max-width:360px){
+    .fr{font-size:18px} body{font-size:16.5px}
+    .bar{gap:7px;padding-left:10px;padding-right:10px}
+  }
+</style>
+</head>
+<body class="hasvoice">
+
+<div class="top">
+  <div class="bar">
+    <button class="tool" id="homeBtn" title="Home" aria-label="Home">
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <path class="ic" d="M4 13.2 14 5l10 8.2"/>
+        <path class="ic" d="M6.6 11.8V23h14.8V11.8"/>
+        <path class="ic" d="M11.3 23v-6.2h5.4V23"/></svg></button>
+    <div class="htitle">
+      <div class="crumb" id="crumb"></div>
+      <div class="en" id="sub"></div>
+    </div>
+    <!-- The English gloss under every French line, on or off. The Japanese
+         app's equivalent is the furigana switch: the thing a learner leans
+         on and should be able to take away. -->
+    <button class="tool wide" id="enBtn" title="English"><span>EN</span></button>
+    <button class="tool" id="rateBtn" title="How fast the voice speaks">
+      <span id="rateLabel">×1</span></button>
+    <button class="tool" id="clickBtn" title="Tile sound">
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <circle class="icf" cx="10" cy="14" r="3.2"/>
+        <path class="ic" d="M16 9.5a6.5 6.5 0 0 1 0 9"/>
+        <path class="ic" id="clickWave" d="M19.6 6a11 11 0 0 1 0 16"/></svg></button>
+  </div>
+  <nav><div class="navin" id="nav"></div></nav>
+</div>
+
+<main id="main"></main>
+<div class="sheet" id="sheet"></div>
+<div class="updatebar" id="upbar">
+  <span id="upmsg">A newer version is ready.</span>
+  <button id="upnow">Load it</button>
+  <button id="uplater">Later</button>
+</div>
+
+<script src="data/criteria.js"></script>
+<script src="data/reports.js"></script>
+<script src="data/flow.js"></script>
+<script src="data/questions.js"></script>
+<script src="data/topics.js"></script>
+<script src="data/phrases.js"></script>
+<script src="data/audio.js"></script>
+<script>
+(function(){
+  "use strict";
+  var CRIT = window.FR_CRITERIA,
+      RP   = window.FR_REPORTS,
+      FL   = window.FR_FLOW,
+      QD   = window.FR_QUESTIONS,
+      TOP  = (window.FR_TOPICS || { topics:[] }).topics,
+      PH   = window.FR_PHRASES,
+      BUILD = "Build 2, 5 October 2026";
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+  function each(scope, sel, fn){
+    Array.prototype.forEach.call(scope.querySelectorAll(sel), fn);
+  }
+
+  /* What the voice is handed. French needs none of the Japanese app's
+     machinery here: no readings, no bracket notation, no overrides. The one
+     thing to strip is the blank in a sentence frame, which a voice would
+     otherwise read out as a row of underscores. */
+  function speakable(text){
+    return String(text == null ? "" : text)
+      .replace(/[＿_]{2,}/g, " ")
+      .replace(/\s+/g, " ").trim();
+  }
+  var CLIPS = (window.FR_AUDIO || {}).clips || {};
+  function clipFor(text){ return CLIPS[speakable(text)] || null; }
+
+  function frLine(text){
+    return '<span class="fr" data-say="' + esc(speakable(text)) + '">'
+         + esc(text) + '</span>';
+  }
+  function enLine(text){
+    return text ? '<span class="en">' + esc(text) + '</span>' : "";
+  }
+
+  /* ---- the voice ----
+     Same shape as the Japanese app: a recording if there is one, the
+     device's own French voice only if there is not. */
+  var SAY = (function(){
+    var can = "speechSynthesis" in window, v = null, settled = false, waiting = [];
+    function pick(){
+      var out = [];
+      try {
+        (speechSynthesis.getVoices() || []).forEach(function(x){
+          if (/^fr(-|_|$)/i.test(x.lang || "")) out.push(x);
+        });
+      } catch (e){}
+      out.sort(function(a, b){
+        function sc(x){
+          var n = x.name || "", p = 0;
+          if (/natural|neural/i.test(n)) p += 100;
+          if (/premium|enhanced/i.test(n)) p += 60;
+          if (/google/i.test(n)) p += 50;
+          if (/compact/i.test(n)) p -= 40;
+          if (x.localService === false) p += 10;
+          return p;
+        }
+        return sc(b) - sc(a);
+      });
+      return out[0] || null;
+    }
+    function land(){
+      v = pick(); settled = true;
+      document.body.classList.toggle("hasvoice", !!v || !!Object.keys(CLIPS).length);
+      waiting.splice(0).forEach(function(f){ f(); });
+    }
+    if (can){
+      try {
+        if (speechSynthesis.getVoices().length) land();
+        speechSynthesis.addEventListener("voiceschanged", land);
+        [600, 2000, 5000].forEach(function(t){ setTimeout(land, t); });
+      } catch (e){ settled = true; }
+    } else {
+      document.body.classList.toggle("hasvoice", !!Object.keys(CLIPS).length);
+    }
+    var liveEl = null, audioEl = null;
+    function playClip(clip, el){
+      audioEl = new Audio("audio/" + clip);
+      audioEl.playbackRate = S.rate;
+      if (el) el.classList.add("live");
+      liveEl = el;
+      audioEl.onended = audioEl.onerror = function(){
+        if (el) el.classList.remove("live");
+        if (liveEl === el) liveEl = null;
+        audioEl = null;
+      };
+      audioEl.play().catch(function(){ audioEl = null;
+        if (el) el.classList.remove("live"); });
+    }
+    function stop(){
+      if (liveEl){ liveEl.classList.remove("live"); liveEl = null; }
+      if (audioEl){ try { audioEl.pause(); } catch (e){} audioEl = null; }
+      try { if (can) speechSynthesis.cancel(); } catch (e){}
+    }
+    return {
+      hasJa: function(){ return !!v || !!Object.keys(CLIPS).length; },
+      ready: function(f){ if (settled) f(); else waiting.push(f); },
+      speak: function(text, el){
+        stop();
+        var c = clipFor(text);
+        if (c) return playClip(c, el);
+        if (!v) land();
+        if (!v) return;
+        var u = new SpeechSynthesisUtterance(speakable(text));
+        u.voice = v; u.lang = "fr-FR"; u.rate = 0.9 * S.rate;
+        if (el){ el.classList.add("live"); liveEl = el; }
+        u.onend = u.onerror = function(){
+          if (el) el.classList.remove("live");
+          if (liveEl === el) liveEl = null;
+        };
+        try { speechSynthesis.speak(u); } catch (e){}
+      },
+      stop: stop
+    };
+  })();
+  document.addEventListener("click", function(ev){
+    var el = ev.target.closest ? ev.target.closest(".fr") : null;
+    if (!el || !SAY.hasJa()) return;
+    SAY.speak(el.dataset.say || el.textContent, el);
+  });
+
+  /* ---- the ? popup. Hover for a mouse, tap for a finger. ---- */
+  var TIP = (function(){
+    var el = null, from = null;
+    function node(){
+      if (!el){
+        el = document.createElement("div");
+        el.className = "tip-pop";
+        el.setAttribute("role", "tooltip");
+        document.body.appendChild(el);
+      }
+      return el;
+    }
+    function show(btn){
+      var text = btn.getAttribute("data-tip");
+      if (!text) return;
+      var n = node();
+      n.textContent = text;
+      n.style.width = Math.min(290, window.innerWidth - 24) + "px";
+      n.classList.add("on");
+      from = btn;
+      var r = btn.getBoundingClientRect(), w = n.offsetWidth, h = n.offsetHeight;
+      var left = Math.max(12, Math.min(r.left + r.width / 2 - w / 2,
+                                       window.innerWidth - w - 12));
+      var top = r.bottom + 8;
+      if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 8);
+      n.style.left = left + "px";
+      n.style.top = top + "px";
+    }
+    function hide(){ if (el) el.classList.remove("on"); from = null; }
+    document.addEventListener("pointerover", function(ev){
+      if (ev.pointerType && ev.pointerType !== "mouse") return;
+      var b = ev.target.closest && ev.target.closest("[data-tip]");
+      if (b) show(b);
+    });
+    document.addEventListener("pointerout", function(ev){
+      if (ev.pointerType && ev.pointerType !== "mouse") return;
+      var b = ev.target.closest && ev.target.closest("[data-tip]");
+      if (b && b === from) hide();
+    });
+    document.addEventListener("click", function(ev){
+      var b = ev.target.closest && ev.target.closest("[data-tip]");
+      if (b){
+        ev.preventDefault(); ev.stopPropagation();
+        if (b === from && el && el.classList.contains("on")) hide(); else show(b);
+        return;
+      }
+      hide();
+    }, true);
+    document.addEventListener("keydown", function(ev){
+      if (ev.key === "Escape") hide();
+    });
+    window.addEventListener("scroll", hide, true);
+    return { hide: hide };
+  })();
+  function qmark(text){
+    return '<button type="button" class="qmark" data-tip="' + esc(text)
+         + '" aria-label="What is this?">?</button>';
+  }
+
+  /* ---- the clack a tile makes ---- */
+  var CLICK = (function(){
+    var ctx = null, noise = null;
+    function build(){
+      if (ctx) return ctx;
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      ctx = new AC();
+      var n = Math.floor(ctx.sampleRate * 0.06);
+      noise = ctx.createBuffer(1, n, ctx.sampleRate);
+      var d = noise.getChannelData(0);
+      for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      return ctx;
+    }
+    return { play: function(){
+      if (!S.click) return;
+      try {
+        var c = build();
+        if (!c) return;
+        if (c.state === "suspended") c.resume();
+        var t = c.currentTime;
+        var src = c.createBufferSource(); src.buffer = noise;
+        var bp = c.createBiquadFilter();
+        bp.type = "bandpass"; bp.frequency.value = 1750; bp.Q.value = 7;
+        var g = c.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.26, t + 0.003);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.055);
+        src.connect(bp); bp.connect(g); g.connect(c.destination);
+        src.start(t); src.stop(t + 0.07);
+      } catch (e){}
+    }};
+  })();
+  document.addEventListener("click", function(ev){
+    if (ev.target.closest && ev.target.closest(".block, nav button, .tile, .movebtn"))
+      CLICK.play();
+  }, true);
+
+  /* ---- what the browser remembers, on this device only ---- */
+  var KEY = "oralFr-v1";
+  var S = { en:true, rate:1, click:true, topic:null, notes:{}, assess:{} };
+  var saved = null;
+  try { var raw = localStorage.getItem(KEY); if (raw) saved = JSON.parse(raw); }
+  catch (e){}
+  if (saved) for (var k in S) if (saved[k] !== undefined) S[k] = saved[k];
+  var saveTimer = null;
+  function save(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e){}
+    }, 250);
+  }
+
+  function paintEn(){
+    document.body.classList.toggle("noen", !S.en);
+    $("enBtn").classList.toggle("off", !S.en);
+    $("enBtn").title = S.en ? "English is showing. Tap to hide it."
+                            : "English is hidden. Tap to show it.";
+    $("enBtn").setAttribute("aria-label", $("enBtn").title);
+  }
+  $("enBtn").onclick = function(){ S.en = !S.en; paintEn(); save(); };
+  var RATES = [0.7, 1, 1.2];
+  function paintRate(){ $("rateLabel").textContent = "×" + S.rate; }
+  $("rateBtn").onclick = function(){
+    S.rate = RATES[(RATES.indexOf(S.rate) + 1) % RATES.length] || 1;
+    paintRate(); save();
+    SAY.speak(FL.ui.rate.fr);
+  };
+  function paintClick(){
+    $("clickBtn").classList.toggle("off", !S.click);
+    $("clickWave").style.display = S.click ? "" : "none";
+    $("clickBtn").title = S.click ? "Tiles click when you press them. Tap to silence."
+                                  : "Tiles are silent. Tap for the click.";
+  }
+  $("clickBtn").onclick = function(){
+    S.click = !S.click; paintClick(); save();
+    if (S.click) CLICK.play();
+  };
+
+  /* ================= the sections ================= */
+  var TABS = [
+    { id:"q",  fr:"Questions", lab:"Questions", en:"Questions",
+      home:"Twenty-four conversation questions, answered three ways each",
+      icon:"bubble", c:"#a0d8ef", ci:"#1f5f82" },
+    { id:"ex", fr:"L'épreuve", lab:"Épreuve", en:"Timed practice",
+      home:"The whole examination on the clock, in the order it runs",
+      icon:"clock",  c:"#f5b1aa", ci:"#8e3f38" },
+    { id:"dr", fr:"Exercices", lab:"Exercices", en:"Drills",
+      home:"Built from six years of French assessor reports",
+      icon:"target", c:"#fcd575", ci:"#6a4806" },
+    { id:"di", fr:"Discussion", lab:"Discussion", en:"Discussion",
+      home:"Six real subtopics and the nine directions a question can take",
+      icon:"steps",  c:"#bbbcde", ci:"#434489" },
+    { id:"ph", fr:"Phrases utiles", lab:"Phrases", en:"Phrases",
+      home:"Lines worth knowing by heart, in five groups",
+      icon:"lines",  c:"#a8d8ce", ci:"#2d6b60" },
+    { id:"me", fr:"Auto-évaluation", lab:"Auto-évaluation", en:"Self-grade",
+      home:"Mark yourself against the four criteria",
+      icon:"person", c:"#b5d5a0", ci:"#426b2c" }
+  ];
+  var ICONS = {
+    bubble:'<svg viewBox="0 0 28 28" aria-hidden="true"><path class="ic" d="M3.5 6.5h21v13h-12l-6 5v-5h-3z"/><path class="ic" d="M10.5 11.2c0-1.6 1.3-2.7 2.9-2.7 1.6 0 2.9 1 2.9 2.4 0 2-2.6 2.2-2.6 4"/><circle class="icf" cx="13.7" cy="17.2" r="1.15"/></svg>',
+    clock: '<svg viewBox="0 0 28 28" aria-hidden="true"><circle class="ic" cx="14" cy="15" r="9.5"/><path class="ic" d="M14 9.5v5.5l4 2.5"/><path class="ic" d="M10 3.5h8"/></svg>',
+    target:'<svg viewBox="0 0 28 28" aria-hidden="true"><circle class="ic" cx="14" cy="14" r="10"/><circle class="ic" cx="14" cy="14" r="5.5"/><circle class="icf" cx="14" cy="14" r="2.2"/></svg>',
+    steps: '<svg viewBox="0 0 28 28" aria-hidden="true"><path class="ic" d="M6 22.5v-6M14 22.5V12M22 22.5V5.5"/></svg>',
+    lines: '<svg viewBox="0 0 28 28" aria-hidden="true"><path class="ic" d="M4 8h20M4 14h20M4 20h13"/></svg>',
+    person:'<svg viewBox="0 0 28 28" aria-hidden="true"><circle class="ic" cx="14" cy="9.5" r="4.6"/><path class="ic" d="M5 24c0-5 4-8 9-8s9 3 9 8"/></svg>'
+  };
+
+  var route = "home", RENDER = {}, RUN = null, clockTimer = null;
+  function go(r, replace){
+    route = r;
+    try {
+      if (replace) history.replaceState({ r:r }, "", "#" + r);
+      else history.pushState({ r:r }, "", "#" + r);
+    } catch (e){}
+    draw();
+  }
+  window.addEventListener("popstate", function(ev){
+    route = (ev.state && ev.state.r) || (location.hash || "#home").slice(1) || "home";
+    draw();
+  });
+  function tabOf(r){ return r.split(":")[0]; }
+  function paintNav(){
+    $("nav").innerHTML = TABS.map(function(t){
+      return '<button data-tab="' + t.id + '" title="' + esc(t.en) + '"'
+           + ' aria-label="' + esc(t.en) + '"'
+           + ' style="--c:' + t.c + ';--ci:' + t.ci + '"'
+           + (tabOf(route) === t.id ? ' class="on" aria-current="page"' : '')
+           + '>' + ICONS[t.icon]
+           + '<span class="lab">' + esc(t.lab) + '</span></button>';
+    }).join("");
+    each($("nav"), "[data-tab]", function(b){
+      b.onclick = function(){ SAY.stop(); go(b.dataset.tab); };
+    });
+  }
+  var TRAIL = [];
+  function setHead(trail, sub){
+    TRAIL = trail;
+    $("crumb").innerHTML = trail.map(function(s, i){
+      var last = i === trail.length - 1;
+      return (i ? '<span class="sep">›</span>' : "")
+           + (last ? esc(s.fr)
+                   : '<button data-r="' + esc(s.r) + '">' + esc(s.fr) + '</button>');
+    }).join("");
+    $("sub").textContent = sub || "";
+    each($("crumb"), "[data-r]", function(b){
+      b.onclick = function(){ SAY.stop(); go(b.dataset.r); };
+    });
+  }
+  function stopClock(){ clearInterval(clockTimer); clockTimer = null; }
+  function draw(){
+    SAY.stop(); stopClock(); paintNav();
+    var fn = RENDER[tabOf(route)] || RENDER.home;
+    $("main").innerHTML = "";
+    fn(route.split(":").slice(1));
+    window.scrollTo(0, 0);
+  }
+  function foot(){
+    return '<p class="foot">VCE French Second Language oral examination '
+         + 'practice. The criteria, the room procedure and every drill item '
+         + 'come from a VCAA document or a French assessor report, 2020 to '
+         + '2025. The French sentences themselves were written for this app '
+         + 'and have not been read by a French teacher: treat them as drafts. '
+         + esc(BUILD) + '</p>';
+  }
+
+  /* ---- shuffling that is the same for one sitting and different for the
+     next: a seed from the clock, then a small deterministic generator. ---- */
+  function seed32(n){
+    var h = 2166136261 >>> 0;
+    String(n).split("").forEach(function(ch){
+      h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0;
+    });
+    return h || 1;
+  }
+  function nextRand(st){
+    st.s ^= st.s << 13; st.s >>>= 0;
+    st.s ^= st.s >>> 17;
+    st.s ^= st.s << 5;  st.s >>>= 0;
+    return st.s / 4294967296;
+  }
+  function seededShuffle(list, seed){
+    var out = list.slice(), st = { s: seed32(seed) };
+    for (var i = out.length - 1; i > 0; i--){
+      var j = Math.floor(nextRand(st) * (i + 1));
+      var t = out[i]; out[i] = out[j]; out[j] = t;
+    }
+    return out;
+  }
+
+  /* ---- recording yourself. On this device, in this tab, and gone the
+     moment the page closes: nothing is uploaded and nothing is stored. ---- */
+  var RECORDER = null, RECSLOT = null;
+  var RECTIP = "Records your answer so you can hear yourself back.\n"
+             + "It stays in this tab on this device. Nothing is uploaded, "
+             + "and it is gone when you close the app.";
+  function recordBlock(slot){
+    return '<div class="recbar">'
+         + '<button type="button" class="recbtn" data-rec="' + esc(slot) + '">'
+         + '<span class="rdot"></span><span class="rlab">Enregistrer</span>'
+         + '</button>' + qmark(RECTIP)
+         + '<span class="recout" data-out="' + esc(slot) + '"></span></div>';
+  }
+  function stopRecorder(){
+    if (RECORDER && RECORDER.state === "recording"){
+      try { RECORDER.stop(); } catch (e){}
+    }
+  }
+  function wireRec(){
+    each(document, "[data-rec]", function(b){
+      b.onclick = function(){
+        var slot = b.dataset.rec;
+        if (RECORDER && RECORDER.state === "recording"){ stopRecorder(); return; }
+        if (!navigator.mediaDevices || !window.MediaRecorder){
+          var out0 = document.querySelector('[data-out="' + slot + '"]');
+          if (out0) out0.innerHTML = '<span class="note">This browser will not '
+            + 'record. Safari on iPhone and Chrome both will.</span>';
+          return;
+        }
+        navigator.mediaDevices.getUserMedia({ audio:true }).then(function(stream){
+          var bits = [];
+          RECORDER = new MediaRecorder(stream);
+          RECSLOT = slot;
+          RECORDER.ondataavailable = function(ev){ if (ev.data.size) bits.push(ev.data); };
+          RECORDER.onstop = function(){
+            stream.getTracks().forEach(function(t){ t.stop(); });
+            var out = document.querySelector('[data-out="' + RECSLOT + '"]');
+            var btn = document.querySelector('[data-rec="' + RECSLOT + '"]');
+            if (btn){ btn.classList.remove("on");
+                      btn.querySelector(".rlab").textContent = "Enregistrer"; }
+            if (out && bits.length){
+              var url = URL.createObjectURL(new Blob(bits, { type: bits[0].type }));
+              out.innerHTML = '<audio controls src="' + url + '"></audio>';
+            }
+            RECORDER = null; RECSLOT = null;
+          };
+          RECORDER.start();
+          b.classList.add("on");
+          b.querySelector(".rlab").textContent = "Arrêter";
+        }).catch(function(){
+          var out = document.querySelector('[data-out="' + slot + '"]');
+          if (out) out.innerHTML = '<span class="note">The microphone was not '
+            + 'allowed. Check the padlock in the address bar.</span>';
+        });
+      };
+    });
+  }
+
+  /* A French line and its English, as one tappable block. */
+  function line(fr, en, cls){
+    return '<div class="' + (cls || "") + '">' + frLine(fr) + enLine(en) + '</div>';
+  }
+  function saybtn(fr){
+    return '<button type="button" class="playbtn" data-play="'
+         + esc(speakable(fr)) + '" aria-label="Listen"></button>';
+  }
+  function wirePlay(){
+    each(document, "[data-play]", function(b){
+      b.onclick = function(ev){
+        ev.stopPropagation();
+        SAY.speak(b.dataset.play, b.closest(".qrow") || null);
+      };
+    });
+    each(document, "[data-go]", function(b){
+      b.onclick = function(){ SAY.stop(); go(b.dataset.go); };
+    });
+  }
+  function after(){ wirePlay(); wireRec(); }
+
+  function shellNote(){
+    return '<div class="tip"><b>How much of this is checked</b>'
+         + 'The criteria and their descriptors are quoted from VCAA\'s Second '
+         + 'Language oral assessment criteria, which names French among the '
+         + 'studies it covers. The room, the timings and the marks come from '
+         + 'VCAA\'s own examination videos. Everything in the Exercices tab '
+         + 'traces back to a French assessor report, 2020 to 2025.\n\n'
+         + 'What is not checked is the French itself. Every question, model '
+         + 'answer and phrase here was written for this app and has not been '
+         + 'read by a French teacher. Argue with all of it.</div>';
+  }
+
+  /* ================= home ================= */
+  RENDER.home = function(){
+    setHead([{ fr:"L'oral", r:"home" }], "VCE French oral examination practice");
+    $("main").innerHTML =
+        '<p class="lede">Practice for the VCE French Second Language oral '
+      + 'examination: about fifteen minutes, two assessors, a seven minute '
+      + 'conversation and then eight minutes on a subtopic you chose.</p>'
+      + '<div class="blocks">' + TABS.map(function(t){
+          return '<button class="block" data-tab="' + t.id + '"'
+               + ' style="--c:' + t.c + ';--ci:' + t.ci + '">'
+               + '<span class="bi">' + ICONS[t.icon] + '</span>'
+               + '<span class="bt">' + esc(t.lab) + '</span>'
+               + '<span class="bd">' + esc(t.home) + '</span></button>';
+        }).join("") + '</div>'
+      + shellNote()
+      + '<div class="novoice">No French voice on this device and no recordings '
+      + 'loaded yet, so the listen buttons are hidden. Everything else works.</div>'
+      + foot();
+    each($("main"), "[data-tab]", function(b){
+      b.onclick = function(){ SAY.stop(); go(b.dataset.tab); };
+    });
+    after();
+  };
+
+  /* ================= Section 1 questions ================= */
+  var PHASES = FL.section1.phases;
+  function phaseOf(id){
+    for (var i = 0; i < PHASES.length; i++) if (PHASES[i].id === id) return PHASES[i];
+    return { id:id, name_en:id, about:"" };
+  }
+  var qFilter = "all";
+  RENDER.q = function(args){
+    if (args[0]) return qOne(args[0]);
+    setHead([{ fr:"L'oral", r:"home" }, { fr:"Questions", r:"q" }],
+            "Section 1, the conversation");
+    var list = QD.questions.filter(function(q){
+      return qFilter === "all" || q.phase === qFilter;
+    });
+    $("main").innerHTML =
+        '<p class="lede">The conversation runs in a rough order: an opening '
+      + 'question, then your own world, then French itself, then the wider '
+      + 'French-speaking world. Tap a question for follow-ups and three '
+      + 'answers to the same question.</p>'
+      + '<div class="filters">'
+      + '<button class="chip' + (qFilter === "all" ? " on" : "") + '" data-f="all">'
+      + 'All ' + QD.questions.length + '</button>'
+      + PHASES.map(function(p){
+          var n = QD.questions.filter(function(q){ return q.phase === p.id; }).length;
+          return '<button class="chip' + (qFilter === p.id ? " on" : "")
+               + '" data-f="' + p.id + '">' + esc(p.name_en) + ' ' + n + '</button>';
+        }).join("") + '</div>'
+      + list.map(function(q){
+          return '<div class="qrow"><button class="card" data-q="' + esc(q.id) + '">'
+               + '<span class="frtext">' + esc(q.question_fr) + '</span>'
+               + enLine(q.question_en) + '</button>'
+               + saybtn(q.question_fr) + '</div>';
+        }).join("")
+      + foot();
+    each($("main"), "[data-f]", function(b){
+      b.onclick = function(){ qFilter = b.dataset.f; draw(); };
+    });
+    each($("main"), "[data-q]", function(b){
+      b.onclick = function(){ SAY.stop(); go("q:" + b.dataset.q); };
+    });
+    after();
+  };
+  function qOne(id){
+    var q = null;
+    QD.questions.forEach(function(x){ if (x.id === id) q = x; });
+    if (!q) return RENDER.q([]);
+    var ph = phaseOf(q.phase);
+    setHead([{ fr:"L'oral", r:"home" }, { fr:"Questions", r:"q" },
+             { fr:ph.name_en, r:"q" }], "Section 1");
+    var tiers = [["basic", "One sentence"], ["developed", "Developed"],
+                 ["advanced", "Full marks territory"]];
+    $("main").innerHTML =
+        recordBlock("q-" + q.id)
+      + '<div class="qmeta"><span class="pill">' + esc(ph.name_en) + '</span>'
+      + '<span class="pill">' + esc(q.question_type) + '</span>'
+      + (q.higher_order ? '<span class="pill ho">higher order</span>' : '')
+      + '</div>'
+      + '<div class="qrow"><div class="card">'
+      + '<span class="frtext">' + esc(q.question_fr) + '</span>'
+      + enLine(q.question_en) + '</div>' + saybtn(q.question_fr) + '</div>'
+      + '<h3>If they push further' + qmark("An assessor rarely asks one "
+        + "question and moves on. Expect two or three of these on the same "
+        + "answer, which is where the marks for depth are.") + '</h3>'
+      + (q.followups || []).map(function(f){
+          return '<div class="qrow"><div class="card">'
+               + '<span class="frtext">' + esc(f.fr) + '</span>'
+               + enLine(f.en) + '</div>' + saybtn(f.fr) + '</div>';
+        }).join("")
+      + '<h3>The same answer, three ways</h3>'
+      + tiers.map(function(t){
+          var m = (q.model_responses || {})[t[0]];
+          if (!m) return "";
+          return '<details><summary><span class="tier">' + esc(t[1])
+               + '</span></summary><div class="dbody">'
+               + line(m.fr, m.en) + '</div></details>';
+        }).join("")
+      + '<div class="row"><button class="btn ghost" data-go="q">All questions</button>'
+      + '<button class="btn ghost" data-go="ex">Try it on the clock</button></div>'
+      + foot();
+    after();
+  }
+
+  /* ================= phrases ================= */
+  RENDER.ph = function(){
+    setHead([{ fr:"L'oral", r:"home" }, { fr:"Phrases utiles", r:"ph" }],
+            "Lines worth knowing by heart");
+    $("main").innerHTML =
+        '<p class="lede">Four small sets. The first and last are not assessed '
+      + 'and still decide how the room feels; the middle two are where most of '
+      + 'the marks for range hide.</p>'
+      + PH.groups.map(function(g){
+          return '<h3>' + esc(g.name_fr) + ' <span class="tier">'
+               + esc(g.name_en) + '</span>' + (g.about ? qmark(g.about) : '') + '</h3>'
+               + g.phrases.map(function(p){
+                   return '<div class="qrow"><div class="card">'
+                        + '<span class="frtext">' + esc(p.fr) + '</span>'
+                        + enLine(p.en) + '</div>' + saybtn(p.fr) + '</div>';
+                 }).join("");
+        }).join("")
+      + foot();
+    after();
+  };
+
+  /* ================= discussion ================= */
+  var MOVES = FL.section2.moves;
+  function moveLabel(id){
+    var m = null;
+    MOVES.forEach(function(x){ if (x.id === id) m = x; });
+    return m || { id:id, label_en:id, label_fr:id, about:"" };
+  }
+  function topicOf(id){
+    var t = null;
+    TOP.forEach(function(x){ if (x.id === id) t = x; });
+    return t;
+  }
+  function topicTiles(prefix){
+    return '<div class="tiles">' + TOP.map(function(t){
+        return '<button class="tile" data-t="' + esc(t.id) + '" data-pre="'
+             + esc(prefix) + '"><b>' + esc(t.name_fr) + '</b>'
+             + '<i class="what">' + esc(t.name_en) + '</i>'
+             + '<i>' + esc(t.theme) + '</i></button>';
+      }).join("") + '</div>';
+  }
+  function wireTiles(){
+    each($("main"), "[data-t]", function(b){
+      b.onclick = function(){
+        S.topic = b.dataset.t; save(); SAY.stop(); go(b.dataset.pre + b.dataset.t);
+      };
+    });
+  }
+  function topicCard(t){
+    return '<div class="mytopic"><b>' + esc(t.name_fr) + '</b>'
+         + '<span>' + esc(t.name_en) + ' · ' + esc(t.theme) + '</span>'
+         + '<details><summary><span class="tier">Words for this subtopic'
+         + '</span></summary><div class="dbody"><ul class="vocab">'
+         + t.key_vocab.map(function(v){
+             return '<li><b>' + esc(v.fr) + '</b> ' + enLine(v.en) + '</li>';
+           }).join("") + '</ul></div></details></div>';
+  }
+  RENDER.di = function(args){
+    var t = args[0] ? topicOf(args[0]) : null;
+    if (!t){
+      setHead([{ fr:"L'oral", r:"home" }, { fr:"Discussion", r:"di" }],
+              "Section 2, choose a subtopic");
+      $("main").innerHTML =
+          '<p class="lede">Six subtopics that VCE French assessors name in '
+        + 'their reports as having been brought into the room between 2021 '
+        + 'and 2025. They are here to show the shape of one that works, not '
+        + 'because you should pick one of them.'
+        + qmark("The reports are blunt about this. Too hard and you have no "
+          + "vocabulary for it. Too narrow and you run out after two minutes. "
+          + "Too vague and there is nothing to argue about. It has to "
+          + "interest you enough that you hold a view.") + '</p>'
+        + topicTiles("di:")
+        + '<div class="row"><button class="btn ghost" data-go="dr:why">'
+        + 'Everything the reports say about choosing</button></div>'
+        + shellNote() + foot();
+      wireTiles(); after();
+      return;
+    }
+    var open = args[1] || null;
+    setHead([{ fr:"L'oral", r:"home" }, { fr:"Discussion", r:"di" },
+             { fr:t.name_fr, r:"di:" + t.id }], "Section 2, your subtopic");
+    $("main").innerHTML =
+        topicCard(t)
+      + '<p class="lede">' + esc(t.blurb_en) + ' The assessors ask blind: '
+      + 'they have not seen your notes, so nothing arrives in a fixed order. '
+      + 'Pick a direction and answer it out loud.</p>'
+      + '<div class="moves">'
+      + MOVES.map(function(m){
+          var n = t.questions.filter(function(q){ return q.move === m.id; }).length;
+          return '<button class="movebtn" data-m="' + esc(m.id) + '"'
+               + (n ? '' : ' disabled') + '><b>' + esc(m.label_en) + '</b>'
+               + '<i>' + esc(m.label_fr) + '</i>'
+               + '<span>' + esc(m.about) + '</span></button>';
+        }).join("") + '</div>'
+      + (open ? moveBlock(t, open) : '')
+      + '<h3>If a question lands somewhere you did not prepare'
+      + qmark("Going silent costs more than admitting it. Every assessor "
+        + "report from 2020 to 2025 lists repair strategies under what to "
+        + "practise, never under what loses marks.") + '</h3>'
+      + FL.section2.strategies.map(function(st){
+          return '<div class="qrow"><div class="card">'
+               + '<span class="frtext">' + esc(st.fr) + '</span>'
+               + enLine(st.en)
+               + (st.note ? '<p class="note">' + esc(st.note) + '</p>' : '')
+               + '</div>' + saybtn(st.fr) + '</div>';
+        }).join("")
+      + '<div class="row"><button class="btn ghost" data-go="di">'
+      + 'A different subtopic</button></div>' + foot();
+    each($("main"), "[data-m]", function(b){
+      b.onclick = function(){ SAY.stop(); go("di:" + t.id + ":" + b.dataset.m); };
+    });
+    after();
+  };
+  function moveBlock(t, moveId){
+    var m = moveLabel(moveId);
+    var qs = t.questions.filter(function(q){ return q.move === moveId; });
+    if (!qs.length) return "";
+    return '<h3>' + esc(m.label_en) + ' <span class="tier">'
+         + esc(m.label_fr) + '</span></h3>'
+         + recordBlock("di-" + t.id + "-" + moveId)
+         + qs.map(function(q){
+             return '<div class="qrow"><div class="card">'
+                  + '<span class="frtext">' + esc(q.question_fr) + '</span>'
+                  + enLine(q.question_en) + '</div>' + saybtn(q.question_fr) + '</div>';
+           }).join("");
+  }
+
+  /* ================= Exercices, built from the reports =================
+     Nothing invented. Every item is a sentence a French assessor wrote about
+     real candidates, which is the only reason a drill like this is worth a
+     student's time. */
+  var drState = { kind:"gender", i:0, done:{}, score:{ right:0, asked:0 }, shown:false };
+  var KINDS = [
+    { id:"gender",    lab:"Le or la",     en:"Noun gender" },
+    { id:"auxiliary", lab:"Être ou avoir", en:"The passé composé auxiliary" },
+    { id:"pronoun",   lab:"Lui ou il",    en:"Pronouns after a preposition" },
+    { id:"avoir",     lab:"Avoir",        en:"Age and states" },
+    { id:"verb form", lab:"Le participe", en:"Verb forms" },
+    { id:"several",   lab:"Tout",         en:"More than one error at once" }
+  ];
+  function errorsOf(kind){
+    return RP.errors.filter(function(e){ return e.kind === kind; });
+  }
+  RENDER.dr = function(args){
+    if (args[0] === "why") return drWhy();
+    setHead([{ fr:"L'oral", r:"home" }, { fr:"Exercices", r:"dr" }],
+            "Six years of assessor reports, as drills");
+    var list = errorsOf(drState.kind);
+    if (drState.i >= list.length) drState.i = 0;
+    var e = list[drState.i];
+    var sc = drState.score;
+    $("main").innerHTML =
+        '<p class="lede">Every sentence below was written by a VCE French '
+      + 'candidate and printed in an assessor report. Pick the right version.'
+      + qmark("The reports name the same four things every year: noun gender, "
+        + "the verbs that take etre in the passe compose, avoir for age, and "
+        + "the stressed pronouns after a preposition.\n\nWhere a report "
+        + "printed the correction too, it is theirs. Where it printed only "
+        + "the mistake, the correction was written for this app and is "
+        + "marked as such.") + '</p>'
+      + '<div class="filters">' + KINDS.map(function(k){
+          var n = errorsOf(k.id).length;
+          if (!n) return "";
+          return '<button class="chip' + (drState.kind === k.id ? " on" : "")
+               + '" data-k="' + esc(k.id) + '" title="' + esc(k.en) + '">'
+               + esc(k.lab) + ' ' + n + '</button>';
+        }).join("") + '</div>'
+      + '<div class="scorebar"><b>' + sc.right + '</b> of ' + sc.asked
+      + ' <span>' + esc(KINDS.filter(function(k){ return k.id === drState.kind; })[0].en)
+      + ' · ' + (drState.i + 1) + ' of ' + list.length + '</span></div>'
+      + drItem(e)
+      + '<div class="row"><button class="btn ghost" data-go="dr:why">'
+      + 'What the reports keep saying</button></div>'
+      + foot();
+    each($("main"), "[data-k]", function(b){
+      b.onclick = function(){
+        drState.kind = b.dataset.k; drState.i = 0; drState.shown = false; draw();
+      };
+    });
+    wireDr(e, list);
+    after();
+  };
+  function drItem(e){
+    /* Which of the two is shown first is settled by the sentence itself, so
+       it does not move around when the page redraws. */
+    var flip = seed32(e.wrong) % 2 === 0;
+    var a = flip ? e.right : e.wrong, b = flip ? e.wrong : e.right;
+    function opt(text, good){
+      return '<div class="opt" data-ok="' + (good ? 1 : 0) + '" role="button"'
+           + ' tabindex="0"><span>' + esc(text) + '</span>'
+           + '<span class="mark"></span>'
+           + '<button type="button" class="spk" data-play="'
+           + esc(speakable(text)) + '" aria-label="Listen"></button></div>';
+    }
+    return '<div class="drillq">Which one is right?</div>'
+         + opt(a, flip) + opt(b, !flip)
+         + '<div class="reveal" id="rev"></div>';
+  }
+  function wireDr(e, list){
+    var rev = $("rev");
+    each($("main"), "[data-ok]", function(b){
+      b.onclick = function(){
+        if (drState.shown) return;
+        drState.shown = true;
+        var good = b.dataset.ok === "1";
+        drState.score.asked++;
+        if (good) drState.score.right++;
+        each($("main"), "[data-ok]", function(x){
+          var ok = x.dataset.ok === "1";
+          x.classList.add(ok ? "yes" : "no");
+          x.querySelector(".mark").textContent = ok ? "✓" : "✗";
+          if (!ok && x !== b) x.classList.add("dim");
+        });
+        rev.className = "reveal on";
+        rev.innerHTML =
+            '<div class="why ' + (good ? "yes" : "no") + '">'
+          + (good ? "Yes. " : "Not that one. ") + esc(e.why) + '</div>'
+          + '<div class="pair"><div class="side no"><b>As written</b>'
+          + esc(e.wrong) + '</div><div class="side yes"><b>As it should be</b>'
+          + frLine(e.right) + enLine(e.en) + '</div></div>'
+          + '<p class="note">' + esc(e.year) + ' assessor report. '
+          + (e.from_report
+              ? 'The report prints both versions.'
+              : 'The report prints the mistake only; this correction was '
+                + 'written for this app and wants a French teacher\'s eye.')
+          + '</p>'
+          + '<div class="row"><button class="btn wide" id="drNext">'
+          + (drState.i + 1 < list.length ? "Next" : "Start again") + '</button></div>';
+        $("drNext").onclick = function(){
+          drState.i = (drState.i + 1) % list.length;
+          drState.shown = false; draw();
+        };
+        wirePlay();
+      };
+    });
+  }
+  function drWhy(){
+    setHead([{ fr:"L'oral", r:"home" }, { fr:"Exercices", r:"dr" },
+             { fr:"Les rapports", r:"dr:why" }],
+            "The same advice, six years running");
+    $("main").innerHTML =
+        '<p class="lede">Seven things the VCE French assessors have written '
+      + 'more than once between 2020 and 2025. The years each one appeared '
+      + 'are on the right.</p>'
+      + RP.themes.map(function(t){
+          return '<div class="card"><div class="tier">'
+               + t.years.join(" · ") + '</div><b>' + esc(t.name) + '</b>'
+               + '<p class="note">' + esc(t.what) + '</p>'
+               + '<div class="why yes">' + esc(t.do) + '</div></div>';
+        }).join("")
+      + '<h3>What high-scoring students actually said</h3>'
+      + RP.high_scoring.map(function(h){
+          return '<div class="qrow"><div class="card">'
+               + '<span class="frtext">' + esc(h.fr) + '</span>'
+               + enLine(h.en)
+               + '<p class="note">' + esc(h.why) + ' (' + h.year + ')</p>'
+               + '</div>' + saybtn(h.fr) + '</div>';
+        }).join("")
+      + '<h3>Subtopics other students brought in</h3>'
+      + '<p class="lede">Named in the reports, 2021 to 2025. Not a '
+      + 'recommendation, just what has worked and what the room has heard '
+      + 'before.</p>'
+      + '<ul class="vocab">' + RP.subtopics_seen.map(function(t){
+          return '<li><b>' + esc(t.fr) + '</b> ' + enLine(t.en)
+               + ' <span class="tier">' + t.years.join(", ") + '</span></li>';
+        }).join("") + '</ul>'
+      + '<p class="note">' + esc(RP.not_included) + '</p>'
+      + '<div class="row"><button class="btn ghost" data-go="dr">'
+      + 'Back to the drills</button></div>' + foot();
+    after();
+  }
+
+  /* ================= self-grade =================
+     The bands are VCAA's own, word for word, because a student marking
+     themselves against a paraphrase learns the paraphrase. A band is a
+     range, so the total is a range too: pretending otherwise would be the
+     one dishonest number in the app. */
+  function bandRange(label){
+    var m = /^(\d+)(?:-(\d+))?$/.exec(label);
+    return m ? [+m[1], m[2] ? +m[2] : +m[1]] : [0, 0];
+  }
+  RENDER.me = function(){
+    setHead([{ fr:"L'oral", r:"home" }, { fr:"Auto-évaluation", r:"me" }],
+            "The real criteria, word for word");
+    var all = [];
+    CRIT.sections.forEach(function(sec){
+      sec.criteria.forEach(function(c){ all.push({ sec:sec, c:c }); });
+    });
+    var lo = 0, hi = 0, max = 0, done = 0;
+    all.forEach(function(x){
+      max += x.c.max;
+      var pick = S.assess[x.c.id];
+      if (pick != null){
+        var r = bandRange(x.c.descriptors[pick].band);
+        lo += r[0]; hi += r[1]; done++;
+      }
+    });
+    $("main").innerHTML =
+        '<div class="scorebar"><b>' + (done ? (lo === hi ? lo : lo + "–" + hi) : "–")
+      + '</b> of ' + max + ' <span>' + (done === all.length
+          ? "on your own reckoning" : done + " of " + all.length + " criteria marked")
+      + '</span></div>'
+      + '<p class="lede">Record yourself, play it back, and mark it against '
+      + 'what the assessors are actually holding. These are the VCAA Second '
+      + 'Language oral descriptors, quoted.'
+      + qmark("The document that carries these names the studies it applies "
+        + "to, and French is one of them. Nothing here is a paraphrase.\n\n"
+        + "Mark the recording, not the memory of how it felt.") + '</p>'
+      + all.map(function(x, n){
+          var pick = S.assess[x.c.id];
+          var chosen = pick != null ? x.c.descriptors[pick].band : null;
+          /* Only the first one you have not marked is open. Four criteria
+             times six descriptors is a very long page otherwise. */
+          var first = pick == null && !all.slice(0, n).some(function(y){
+            return S.assess[y.c.id] == null;
+          });
+          return '<details' + (first ? ' open' : '') + '>'
+               + '<summary><span class="tier">Section ' + x.sec.number
+               + ' · criterion ' + x.c.number + '</span><br>'
+               + '<b>' + esc(x.c.name) + '</b><br>'
+               + (chosen ? '<span class="pill">' + esc(chosen) + ' of '
+                            + x.c.max + '</span>'
+                         : '<span class="pill">not marked</span>')
+               + '</summary><div class="dbody">'
+               + '<p class="note">' + esc(x.c.scope) + '</p>'
+               + '<div class="gram">' + x.c.qualities.map(function(q){
+                   return '<span>' + esc(q) + '</span>';
+                 }).join("") + '</div>'
+               + '<div class="bands">' + x.c.descriptors.map(function(d, k){
+                   return '<button class="band' + (pick === k ? " on" : "")
+                        + '" data-c="' + esc(x.c.id) + '" data-i="' + k + '">'
+                        + '<b>' + esc(d.band) + '</b><span>' + esc(d.text)
+                        + '</span></button>';
+                 }).join("") + '</div></div></details>';
+        }).join("")
+      + '<div class="row"><button class="btn ghost" id="clearMe">Clear</button>'
+      + '<button class="btn ghost" data-go="ex">Run it again</button></div>'
+      + '<div class="card flat"><div class="tier">Where these come from</div>'
+      + CRIT.sources.map(function(src){
+          return '<p class="note"><b>' + esc(src.what) + '</b><br>'
+               + esc(src.doc) + '</p>';
+        }).join("")
+      + (CRIT.unverified || []).map(function(u){
+          return '<div class="why no">Still unchecked: ' + esc(u) + '</div>';
+        }).join("") + '</div>'
+      + foot();
+    each($("main"), "[data-c]", function(b){
+      b.onclick = function(){
+        S.assess[b.dataset.c] = +b.dataset.i; save(); draw();
+      };
+    });
+    $("clearMe").onclick = function(){ S.assess = {}; save(); draw(); };
+    after();
+  };
+
+  /* ================= the examination on the clock ================= */
+  function mmss(s){
+    s = Math.max(0, Math.round(s));
+    return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2);
+  }
+  function clockBar(label, target){
+    return '<div class="clock" id="clk"><b id="clkT">0:00</b>'
+         + '<span>' + esc(label) + ' · ' + mmss(target) + ' aim</span></div>';
+  }
+  function startClock(target){
+    stopClock();
+    clockTimer = setInterval(function(){
+      var el = $("clkT");
+      if (!el){ stopClock(); return; }
+      var s = (Date.now() - RUN.mark) / 1000;
+      el.textContent = mmss(s);
+      var box = $("clk");
+      if (box) box.classList.toggle("low", s > target);
+    }, 500);
+  }
+  function buildS1(){
+    var seed = Date.now(), out = [];
+    PHASES.forEach(function(p, pi){
+      var pool = seededShuffle(QD.questions.filter(function(q){
+        return q.phase === p.id;
+      }), seed + pi);
+      out = out.concat(pool.slice(0, p.n));
+    });
+    return out;
+  }
+  RENDER.ex = function(args){
+    var step = args[0] || (RUN ? RUN.stage : "start");
+    if (step === "start" && args[1]) return exStart();
+    if (step === "start" || !RUN) return exStart();
+    if (step === "entry") return exEntry();
+    if (step === "s1")    return exS1();
+    if (step === "trans") return exTrans();
+    if (step === "s2")    return exS2(args[1] || null);
+    if (step === "exit")  return exExit();
+    return exStart();
+  };
+  function exHead(sub){
+    setHead([{ fr:"L'oral", r:"home" }, { fr:"L'épreuve", r:"ex" }], sub);
+  }
+  function exStart(){
+    RUN = null; stopClock();
+    exHead("The whole thing, in order");
+    var e = CRIT.examination, t = S.topic ? topicOf(S.topic) : null;
+    $("main").innerHTML =
+        '<p class="lede">Press start and work through it without stopping: '
+      + 'walking in, ' + esc(CRIT.sections[0].minutes_wording) + ' of '
+      + 'conversation, then ' + esc(CRIT.sections[1].minutes_wording)
+      + ' on your subtopic, then walking out.</p>'
+      + '<div class="card"><b>' + esc(e.total_minutes_wording) + '</b>'
+      + '<p class="note">' + e.total_marks + ' marks · ' + e.assessors
+      + ' assessors · ' + esc(e.recorded) + '</p></div>'
+      + (t ? topicCard(t)
+             + '<div class="row"><button class="btn wide" id="goRun">'
+             + 'Commencer</button></div>'
+             + '<div class="row"><button class="btn ghost sm" data-go="di">'
+             + 'Choose a different subtopic</button></div>'
+           : '<h3>First, which subtopic are you taking in?</h3>'
+             + topicTiles("ex:start:"))
+      + shellNote() + foot();
+    if (t) $("goRun").onclick = function(){
+      RUN = { stage:"entry", mark:Date.now(), s1:buildS1(), i:0, used:{}, n2:0,
+              topic:S.topic };
+      go("ex:entry");
+    };
+    else wireTiles();
+    after();
+  }
+
+  function exEntry(){
+    exHead("L'entrée · not assessed, and it still sets the tone");
+    var cult = FL.entry.culture || [];
+    $("main").innerHTML =
+        '<p class="lede">' + esc(FL.entry.about) + '</p>'
+      + '<details><summary><span class="tier">What a French speaker notices'
+      + '</span> · ' + cult.length + ' things</summary><div class="dbody">'
+      + '<ul class="vocab">' + cult.map(function(c){
+          return '<li>' + esc(c) + '</li>';
+        }).join("") + '</ul></div></details>'
+      + FL.entry.steps.map(function(s){
+          return '<div class="qrow"><div class="card'
+               + (s.who === "you" ? " mine" : "") + '">'
+               + '<div class="who">' + (s.who === "you" ? "You" : "Assessor") + '</div>'
+               + '<span class="frtext">' + esc(s.fr) + '</span>'
+               + enLine(s.en)
+               + (s.note ? '<p class="note">' + esc(s.note) + '</p>' : '')
+               + '</div>' + saybtn(s.fr) + '</div>';
+        }).join("")
+      + '<div class="row"><button class="btn wide" id="goS1">'
+      + 'Start the conversation</button></div>' + foot();
+    $("goS1").onclick = function(){
+      RUN.stage = "s1"; RUN.i = 0; RUN.mark = Date.now(); go("ex:s1");
+    };
+    after();
+  }
+  function exS1(){
+    var q = RUN.s1[RUN.i];
+    if (!q){ RUN.stage = "trans"; return exTrans(); }
+    var ph = phaseOf(q.phase);
+    exHead("Section 1 · " + ph.name_en + " · " + (RUN.i + 1) + " of " + RUN.s1.length);
+    $("main").innerHTML =
+        clockBar("Section 1", CRIT.sections[0].minutes * 60)
+      + recordBlock("ex-" + q.id)
+      + '<div class="qrow"><div class="card">'
+      + '<span class="frtext">' + esc(q.question_fr) + '</span>'
+      + enLine(q.question_en) + '</div>' + saybtn(q.question_fr) + '</div>'
+      + '<p class="note">Answer out loud before you open anything below.</p>'
+      + '<details><summary><span class="tier">If they push further</span></summary>'
+      + '<div class="dbody">' + (q.followups || []).map(function(f){
+          return line(f.fr, f.en);
+        }).join("") + '</div></details>'
+      + '<div class="row">'
+      + '<button class="btn wide" id="nextQ">'
+      + (RUN.i + 1 < RUN.s1.length ? "Next question" : "On to the subtopic")
+      + '</button></div>'
+      + '<div class="row"><button class="btn ghost sm" id="endEarly">'
+      + 'Stop and walk out</button></div>' + foot();
+    startClock(CRIT.sections[0].minutes * 60);
+    $("nextQ").onclick = function(){
+      stopRecorder(); SAY.stop(); RUN.i++;
+      if (RUN.i >= RUN.s1.length){ RUN.stage = "trans"; go("ex:trans"); }
+      else draw();
+    };
+    $("endEarly").onclick = function(){
+      stopRecorder(); RUN.stage = "exit"; go("ex:exit");
+    };
+    after();
+  }
+  function exTrans(){
+    exHead("The hinge between the two sections");
+    var t = FL.section2.transition;
+    $("main").innerHTML =
+        '<div class="qrow"><div class="card">'
+      + '<div class="who">Assessor</div>'
+      + '<span class="frtext">' + esc(t.fr) + '</span>'
+      + enLine(t.en) + '</div>' + saybtn(t.fr) + '</div>'
+      + '<p class="lede">' + esc(FL.section2.about) + '</p>'
+      + '<div class="row"><button class="btn wide" id="goS2">'
+      + 'Start the discussion</button></div>' + foot();
+    $("goS2").onclick = function(){
+      RUN.stage = "s2"; RUN.mark = Date.now(); go("ex:s2");
+    };
+    after();
+  }
+  function exS2(moveId){
+    var t = topicOf(RUN && RUN.topic) || topicOf(S.topic) || TOP[0];
+    exHead("Section 2 · " + (t ? t.name_en : "your subtopic"));
+    var served = null;
+    if (t && moveId){
+      var pool = t.questions.filter(function(q){
+        return q.move === moveId && !RUN.used[q.id];
+      });
+      served = pool[0] || null;
+      if (served) RUN.used[served.id] = 1;
+      else {
+        var any = t.questions.filter(function(q){ return q.move === moveId; });
+        served = any[0] || null;
+      }
+    }
+    $("main").innerHTML =
+        clockBar("Section 2", CRIT.sections[1].minutes * 60)
+      + (t ? topicCard(t) : '')
+      + (served
+          ? recordBlock("s2-" + served.id)
+            + '<div class="qrow"><div class="card">'
+            + '<span class="frtext">' + esc(served.question_fr) + '</span>'
+            + enLine(served.question_en) + '</div>'
+            + saybtn(served.question_fr) + '</div>'
+          : '<div class="hidden-q">Pick a direction below. The assessors are '
+            + 'asking blind, so you will not get them in this order on the day.'
+            + '</div>')
+      + '<h3>Where they could go next'
+      + qmark("Nine directions an assessor can take a subtopic. Tap one and "
+        + "answer it out loud. On the day you do not get to choose, which is "
+        + "the point of working through all nine here.") + '</h3>'
+      + '<div class="moves">' + MOVES.map(function(m){
+          var left = t ? t.questions.filter(function(q){
+            return q.move === m.id && !RUN.used[q.id];
+          }).length : 0;
+          return '<button class="movebtn" data-m="' + esc(m.id) + '"'
+               + (t ? '' : ' disabled') + '><b>' + esc(m.label_en) + '</b>'
+               + '<i>' + esc(m.label_fr) + '</i>'
+               + '<span>' + (left ? left + ' left' : 'all used') + '</span></button>';
+        }).join("") + '</div>'
+      + '<details><summary><span class="tier">If it lands somewhere you did '
+      + 'not prepare</span></summary><div class="dbody">'
+      + FL.section2.strategies.map(function(s){ return line(s.fr, s.en); }).join("")
+      + '</div></details>'
+      + '<div class="row"><button class="btn wide" id="goExit">'
+      + 'Finish and walk out</button></div>' + foot();
+    startClock(CRIT.sections[1].minutes * 60);
+    each($("main"), "[data-m]", function(b){
+      b.onclick = function(){
+        stopRecorder(); SAY.stop(); RUN.n2++; go("ex:s2:" + b.dataset.m);
+      };
+    });
+    $("goExit").onclick = function(){
+      stopRecorder(); RUN.stage = "exit"; go("ex:exit");
+    };
+    after();
+  }
+  function exExit(){
+    stopClock();
+    exHead("La sortie");
+    $("main").innerHTML =
+        FL.exit.steps.map(function(s){
+          return '<div class="qrow"><div class="card'
+               + (s.who === "you" ? " mine" : "") + '">'
+               + '<div class="who">' + (s.who === "you" ? "You" : "Assessor") + '</div>'
+               + '<span class="frtext">' + esc(s.fr) + '</span>'
+               + enLine(s.en) + '</div>' + saybtn(s.fr) + '</div>';
+        }).join("")
+      + '<div class="card"><b>That was the shape of it</b>'
+      + '<p class="note">' + (RUN ? RUN.s1.length : 0) + ' conversation '
+      + 'questions and ' + (RUN ? RUN.n2 : 0) + ' directions on your subtopic. '
+      + 'Play your recordings back before you mark yourself.</p></div>'
+      + '<div class="row"><button class="btn wide" data-go="me">'
+      + 'Mark yourself</button></div>'
+      + '<div class="row"><button class="btn ghost" data-go="ex">'
+      + 'Run it again</button></div>' + foot();
+    after();
+  }
+
+  /* ================= boot ================= */
+  $("homeBtn").onclick = function(){ SAY.stop(); go("home"); };
+  paintEn(); paintRate(); paintClick();
+  SAY.ready(function(){ if (route === "home") draw(); });
+  go((location.hash || "#home").slice(1) || "home", true);
+
+  if ("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").then(function(reg){
+        reg.addEventListener("updatefound", function(){
+          var w = reg.installing;
+          if (!w) return;
+          w.addEventListener("statechange", function(){
+            if (w.state === "installed" && navigator.serviceWorker.controller){
+              $("upbar").style.display = "flex";
+              $("upnow").onclick = function(){
+                w.postMessage({ type:"SKIP_WAITING" }); location.reload();
+              };
+              $("uplater").onclick = function(){
+                $("upbar").style.display = "none";
+              };
+            }
+          });
+        });
+      }).catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>
