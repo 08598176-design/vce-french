@@ -396,7 +396,8 @@
      the top and bottom faded so the drum reads as continuing past the
      window rather than ending at it. touch-action is the important line:
      without it a flick scrolls the page instead of turning the drum. */
-  .rwin{position:relative;height:192px;overflow:hidden;background:var(--paper);
+  .rwin{position:relative;flex:1;min-width:0;height:192px;overflow:hidden;
+        background:var(--paper);
         border:1px solid var(--line);border-radius:4px;
         touch-action:none;cursor:grab;
         -webkit-user-select:none;user-select:none;
@@ -409,15 +410,31 @@
   .rstrip{will-change:transform}
   .ritem{height:64px;display:flex;flex-direction:column;align-items:center;
          justify-content:center;gap:1px;text-align:center;padding:0 10px}
-  .ritem b{font-family:var(--display);font-size:22px;font-weight:600;
+  .ritem b{font-family:var(--display,inherit);
+           font-size:clamp(17px,5.4vw,22px);font-weight:600;
            line-height:1.15;white-space:nowrap;overflow:hidden;
            text-overflow:ellipsis;max-width:100%}
   .ritem i{font-style:normal;font-size:12px;color:var(--muted);
            letter-spacing:.04em}
   .rmark{position:absolute;left:0;right:0;top:64px;height:64px;
          pointer-events:none;border-top:2px solid var(--deep);
-         border-bottom:2px solid var(--deep);background:rgba(39,49,138,.05)}
-  .reel{margin:4px 0 12px}
+         border-bottom:2px solid var(--deep);background:rgba(0,0,0,.035)}
+  .reel{display:flex;align-items:center;gap:9px;margin:4px 0 12px}
+  /* Dragging a cursor is a poor way to throw a drum, so there is a quiet
+     button beside it as well. Beside rather than on top: the longest topic
+     name needs the whole width of the window on a small phone, and a
+     button over the top of it would either cover the name or squeeze it
+     until it had to be cut off. */
+  .rspin{flex:none;width:44px;height:44px;border-radius:50%;
+         cursor:pointer;padding:0;
+         border:1px solid var(--line);background:var(--paper);
+         color:var(--deep);display:flex;align-items:center;
+         justify-content:center;opacity:.72;
+         box-shadow:0 1px 4px rgba(28,33,41,.12);transition:opacity .13s}
+  .rspin:hover,.rspin:focus{opacity:1;border-color:var(--deep);outline:none}
+  .rspin svg{width:21px;height:21px}
+  .rspin .ic{stroke-width:2}
+  .reel.spinning .rspin{opacity:.3;pointer-events:none}
 
   /* ---------- the discussion image ---------- */
   .shot{width:100%;border-radius:11px;border:1px solid var(--line);display:block}
@@ -593,7 +610,7 @@
       TOPD = window.FR_TOPICS || { topics:[], groups:[] },
       TOP  = TOPD.topics,
       PH   = window.FR_PHRASES,
-      BUILD = "Build 2, 5 October 2026";
+      BUILD = "Build 3, 5 October 2026";
 
   function $(id){ return document.getElementById(id); }
   function esc(s){
@@ -906,9 +923,21 @@
         target = null; v = v0; last = 0;
         spinning = true;
         box.classList.add("spinning");
+        /* A device asking for reduced motion gets a short plain glide
+           rather than a jump: landing with no movement at all reads as
+           broken, and three slots of travel is not what that setting is
+           protecting anybody from. */
         if (reduced()){
-          pos = Math.round((pos + v0 * 0.35) / H) * H;
-          paint(); done(); return;
+          var from = pos, to = Math.round((pos + 3 * H) / H) * H, t0 = 0;
+          (function ease(now){
+            if (!t0) t0 = now;
+            var k = Math.min(1, (now - t0) / 480);
+            pos = from + (to - from) * (1 - Math.pow(1 - k, 3));
+            paint();
+            if (k < 1) raf = requestAnimationFrame(ease);
+            else { pos = to; paint(); done(); }
+          })(performance.now());
+          return;
         }
         raf = requestAnimationFrame(frame);
       }
@@ -931,17 +960,24 @@
         pos = grab.pos - (ev.clientY - grab.y);
         grab.moved += Math.abs(ev.clientY - grab.ly);
         var now = performance.now(), dt = now - grab.lt;
-        if (dt > 6){
+        if (dt > 4){
           grab.v = -(ev.clientY - grab.ly) / dt * 1000;
           grab.ly = ev.clientY; grab.lt = now;
+          grab.mouse = ev.pointerType === "mouse";
         }
         paint(); ticks(now);
       });
       function release(){
         if (!grab) return;
-        var fling = grab.v, stale = performance.now() - grab.lt > 90;
+        /* A hand can flick; a mouse cannot. The same gesture drags a
+           cursor at perhaps a third the speed of a thumb, so a mouse
+           throw is scaled up to land in the same range. The button on the
+           rim is there because even scaled, dragging a mouse is a poor way
+           to throw anything. */
+        var fling = grab.v * (grab.mouse ? 2.2 : 1);
+        var stale = performance.now() - grab.lt > 130;
         grab = null;
-        if (stale || Math.abs(fling) < 200){ launch(0); return; }
+        if (stale || Math.abs(fling) < 130){ launch(0); return; }
         launch(Math.max(-7000, Math.min(7000, fling)));
       }
       win.addEventListener("pointerup", release);
@@ -1348,7 +1384,12 @@
         + "cheapest way to practise being asked something you did not "
         + "pick.") + '</p>'
       + '<div class="reel" id="reel"><div class="rwin">'
-      + '<div class="rstrip"></div><div class="rmark"></div></div></div>'
+      + '<div class="rstrip"></div><div class="rmark"></div></div>'
+      + '<button type="button" class="rspin" id="rspin" title="Spin"'
+      + ' aria-label="Spin the drum">'
+      + '<svg viewBox="0 0 24 24" aria-hidden="true">'
+      + '<path class="ic" d="M20 12a8 8 0 1 1-2.6-5.9"/>'
+      + '<path class="ic" d="M20 3.6V8h-4.4"/></svg></button></div>'
       + '<div class="row"><button class="btn wide" id="spinBtn">'
       + 'Tourner la roue</button></div>'
       + '<div id="spinOut"></div>'
@@ -1359,12 +1400,14 @@
       spun = item.id;
       showSpun(item);
     });
-    $("spinBtn").onclick = function(){
+    function go1(){
       if (R.spinning()) return;
       SAY.stop();
       $("spinOut").innerHTML = "";
       R.spin();
-    };
+    }
+    $("spinBtn").onclick = go1;
+    $("rspin").onclick = go1;
     if (spun) showSpun(null);
     after();
   }
