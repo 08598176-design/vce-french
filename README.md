@@ -18,6 +18,18 @@ come from a VCAA document or a French assessor report. The French sentences
 themselves were written for this app and have not been read by a French
 teacher. Argue with all of it.
 
+## Les vêtements
+
+A second page on this site, at `/vetements/`: clothing and colours for
+Year 7 and 8. un or une, where the colour goes, making it agree, and the
+four colours that never change. Eight stepped screens, six people to
+describe, and a last one where nothing is given.
+
+**Also a draft, and a rougher one.** No French teacher has read it. The
+vocabulary list is a starting set to strike through rather than a
+syllabus, and it makes no curriculum claim.
+
+
 Nothing is collected. Recordings stay in the browser tab and are gone when
 the page closes; ticks and marks stay on the device.
 
