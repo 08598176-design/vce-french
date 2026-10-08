@@ -351,6 +351,56 @@
     };
   }
 
+  /* ---- a deck, so nothing comes up in the order it is written down ----
+     Carried over from the ひと page, where every stepped exercise walked
+     its list with a counter: the six people came up in file order, so the
+     answer to round one was the first card and round two the second, and
+     a student who noticed never had to read anything again. This page was
+     built from that code and inherited all of it.
+
+     A deck shuffles the whole list, deals it out, and reshuffles when it
+     is spent without repeating across the seam. The tally is for the
+     steps whose list is a product too big to work through — seventeen
+     garments against thirteen colours — where the tick counts right
+     answers instead. */
+  var DECKS = {}, TALLY = {};
+  function deck(key, n){
+    var d = DECKS[key];
+    if (!d || d.n !== n){
+      var order = [];
+      for (var i = 0; i < n; i++) order.push(i);
+      d = DECKS[key] = { n:n, order:shuffle(order), at:0, right:{} };
+    }
+    return d;
+  }
+  function dealt(key, n){ return deck(key, n).order[deck(key, n).at]; }
+  function advance(key, n){
+    var d = deck(key, n);
+    d.at++;
+    if (d.at >= d.n){
+      var last = d.order[d.n - 1], tries = 0;
+      do { d.order = shuffle(d.order); tries++; }
+      while (d.n > 1 && d.order[0] === last && tries < 20);
+      d.at = 0;
+    }
+  }
+  function gotRight(key, n, i, id){
+    var d = deck(key, n);
+    d.right[i] = 1;
+    if (Object.keys(d.right).length >= n) done(id);
+  }
+  /* Counted on a right answer and nowhere else. The tick on three of
+     these steps used to fire on a multiple of the counter that Next also
+     moved, so pressing Next six times earned it without answering
+     anything. */
+  function tally(key){ return TALLY[key] || (TALLY[key] = { right:0 }); }
+  function scoreRight(key, need, id){
+    var t = tally(key);
+    t.right++;
+    if (t.right >= need) done(id);
+  }
+  function pickOne(list){ return list[Math.floor(Math.random() * list.length)]; }
+
   /* ---- the steps ---- */
   var STEPS = [
     { id:"qui",     fr:"Qui est-ce ?",  en:"Who is it?" },
@@ -403,11 +453,36 @@
   /* ---- 1. Qui est-ce ? ----
      The problem before the method. Six people, three clues, and no
      vocabulary taught yet. */
-  var wIdx = 0;
+  /* The clues were the hair, the eyes and the top, every single round,
+     and the top alone tells all six apart, so there was nothing to read
+     past the third line. They are picked at random now and grown one at
+     a time until they fit exactly one of the six. */
+  function cluesFor(p, all){
+    var mine = factsOf(p), pool = shuffle(mine.slice()), picked = [];
+    function fits(){
+      return all.filter(function(q){
+        if (q.id === p.id) return true;
+        var theirs = factsOf(q);
+        return picked.every(function(f){
+          return theirs.some(function(g){ return g.id === f.id && g.fr === f.fr; });
+        });
+      }).length;
+    }
+    for (var i = 0; i < pool.length; i++){
+      picked.push(pool[i]);
+      if (picked.length >= 2 && fits() === 1) break;
+      if (picked.length >= 4) break;
+    }
+    /* A set that still fits two people is not a question. Fall back to
+       the hair, the eyes and a garment, which the sanity check
+       guarantees tell all six apart. */
+    if (fits() !== 1)
+      picked = [mine[0], mine[2], mine.filter(function(x){ return x.garment; })[0]];
+    return picked;
+  }
   DRAW.qui = function(){
-    var p = P.people[wIdx % P.people.length];
-    var fs = factsOf(p);
-    var clues = [fs[0], fs[2], fs.filter(function(x){ return x.garment; })[0]];
+    var np = P.people.length, pi = dealt("qui", np), p = P.people[pi];
+    var clues = cluesFor(p, P.people), cards = shuffle(P.people.slice());
     $("main").innerHTML = ruleFor("qui")
       + '<div class="work">'
       + clues.map(function(f){
@@ -415,10 +490,11 @@
         }).join("")
       + '<div class="grid cards" id="six" style="margin-top:10px"></div></div>'
       + '<div id="fb" class="fbslot"></div>'
-      + '<div class="foot"><span class="score">' + ((wIdx % P.people.length) + 1)
-      + ' of ' + P.people.length + '</span><span class="sp"></span>'
+      + '<div class="foot"><span class="score"><b>'
+      + Object.keys(deck("qui", np).right).length + '</b> of ' + np
+      + ' found</span><span class="sp"></span>'
       + '<button class="btn sm" id="next">Next</button></div>';
-    $("six").innerHTML = P.people.map(function(x){
+    $("six").innerHTML = cards.map(function(x){
       return '<div class="card" role="button" tabindex="0" data-p="' + esc(x.id)
         + '" style="text-align:center">' + figure(x, 130)
         + '<span class="fr name">' + esc(x.name) + '</span></div>';
@@ -431,14 +507,14 @@
           + '<b>' + (ok ? "Oui" : "Not that one") + '</b>'
           + (ok ? esc(p.name) + "." : "Check the " + esc(clues[0].look)
                   + " and the " + esc(clues[1].look) + ".") + '</div>';
-        if (ok && (wIdx % P.people.length) === P.people.length - 1) done("qui");
+        if (ok) gotRight("qui", np, pi, "qui");
       }
       b.onclick = go;
       b.onkeydown = function(ev){
         if (ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); go(); }
       };
     });
-    $("next").onclick = function(){ wIdx++; draw(); };
+    $("next").onclick = function(){ advance("qui", np); draw(); };
   };
 
   /* ---- 2. Les mots ----
@@ -568,7 +644,13 @@
         var c = pick; clearPick(); land(c, slot);
       };
     });
-    $("next").onclick = function(){ mRound++; draw(); };
+    /* Reshuffle when the cycle is spent, so a second pass is different
+       sets rather than the same seven groups again. */
+    $("next").onclick = function(){
+      mRound++;
+      if (mRound >= rounds){ mRound = 0; mOrder = shuffle(W.words); }
+      draw();
+    };
   };
 
   /* ---- sorting, used by step 3 and step 7 ----
@@ -725,10 +807,9 @@
      Does this colour ever move? Four of the thirteen never do, and a
      class that only ever meets vert and rouge never finds out there is a
      rule to break. */
-  var jIdx = 0;
   DRAW.jamais = function(){
     var wear = GARMENTS.filter(function(g){ return g.num === "p"; });
-    var g = wear[jIdx % wear.length];
+    var g = wear[dealt("jamais", wear.length)];
     sortGame({
       id: "jamais",
       items: deal(COLOURS, 8, function(c){ return c.changes ? "y" : "n"; }),
@@ -740,6 +821,7 @@
       cols: [{ key:"y", cls:"plain", head:"ça change" },
              { key:"n", cls:"plain", head:"ça ne change jamais" }],
       kindOf: function(c){ return c.changes ? "y" : "n"; },
+      next: function(){ advance("jamais", wear.length); },
       chip: function(c){ return swatch(c.fr) + esc(c.fr); },
       right: function(c){
         var v = agree(c.fr, g.g, g.num);
@@ -766,10 +848,9 @@
      form, so the only question on this step is where it goes: putting
      the article, the noun and the colour in the French order and not the
      English one. */
-  var aIdx = 0;
   DRAW.apres = function(){
-    var g = GARMENTS[aIdx % GARMENTS.length];
-    var c = COLOURS[(aIdx * 5 + 3) % COLOURS.length];
+    var g = GARMENTS[dealt("apres", GARMENTS.length)];
+    var c = pickOne(COLOURS);
     var want = [g.det, g.base, agree(c.fr, g.g, g.num)];
     var tiles = shuffle(want.map(function(t, i){ return { t: t, i: i }; }));
     /* a shuffle that comes out already in order is not a question */
@@ -782,7 +863,8 @@
       + '<div class="slot" id="tiles"></div></div>'
       + '<div id="fb" class="fbslot"></div>'
       + '<div class="foot"><span class="score">' + swatch(c.fr)
-      + esc(englishFor(g, c)) + '</span><span class="sp"></span>'
+      + esc(englishFor(g, c)) + ' \u00b7 <b>' + tally("apres").right
+      + '</b> right</span><span class="sp"></span>'
       + '<button class="btn sm ghost" id="undo">Undo</button>'
       + '<button class="btn sm" id="next">Next</button></div>';
     function paint(){
@@ -806,8 +888,10 @@
           + '<div class="ph">' + swatch(c.fr) + esc(want.join(" ")) + ' '
           + saybtn(want.join(" ")) + '</div></div>';
         wireSay();
-        aIdx++;
-        if (aIdx % 6 === 0) done("apres");
+        /* Counted here and nowhere else. The tick used to come off the
+           same counter Next moved, so six presses of Next earned it. */
+        scoreRight("apres", 6, "apres");
+        advance("apres", GARMENTS.length);
         return;
       }
       var why = got[1] === want[2]
@@ -827,7 +911,7 @@
     }
     paint();
     $("undo").onclick = function(){ put.pop(); paint(); };
-    $("next").onclick = function(){ aIdx++; draw(); };
+    $("next").onclick = function(){ advance("apres", GARMENTS.length); draw(); };
   };
 
   /* The English of the phrase being built: "a grey T-shirt", not "grey a
@@ -844,15 +928,21 @@
      form the colour has, so getting it right means choosing and not
      recognising. */
   function accordStep(opts){
-    var g = opts.nouns[opts.idx() % opts.nouns.length];
+    var g = opts.nouns[dealt(opts.id, opts.nouns.length)];
     var pool = COLOURS.filter(opts.colours);
-    var c = pool[(opts.idx() * 7 + 2) % pool.length];
+    var c = pickOne(pool);
     var want = agree(c.fr, g.g, g.num);
     var forms = [];
     ["ms", "fs", "mp", "fp"].forEach(function(k){
       if (forms.indexOf(c.forms[k]) < 0) forms.push(c.forms[k]);
     });
-    if (forms.length < 2) forms.push(c.fr + "s");   /* never right, always offered */
+    /* rouge, jaune and rose have only two forms between them, so the
+       question came down to a coin toss. The third option is the
+       over-correction the rule box warns about: students who have learnt
+       that the feminine adds an e write rougee. */
+    if (forms.length < 3 && /e$/.test(c.forms.ms))
+      forms.push(c.forms.ms + "e");
+    if (forms.length < 3) forms.push(c.forms.ms + "s");
     forms = shuffle(forms);
     var nxt = STEPS[at + 1];
     $("main").innerHTML = ruleFor(opts.id)
@@ -864,6 +954,7 @@
       + '<div class="foot"><span class="score">'
       + esc(g.g === "f" ? "feminine" : "masculine")
       + esc(g.num === "p" ? ", plural" : ", singular")
+      + ' \u00b7 <b>' + tally(opts.id).right + '</b> right'
       + '</span><span class="sp"></span>'
       + '<button class="btn sm" id="next">Next</button></div>';
     $("opts").innerHTML = forms.map(function(v, i){
@@ -879,8 +970,8 @@
             + '<div class="ph">' + swatch(c.fr) + esc(g.fr + " " + want) + ' '
             + saybtn(g.fr + " " + want) + '</div></div>';
           wireSay();
-          opts.bump();
-          if (opts.idx() % 6 === 0) done(opts.id);
+          scoreRight(opts.id, 6, opts.id);
+          advance(opts.id, opts.nouns.length);
         } else {
           $("fb").innerHTML = '<div class="mark no">'
             + '<div class="ph bad"><i>not</i>' + esc(g.fr + " " + v) + '</div>'
@@ -890,15 +981,14 @@
         }
       };
     });
-    $("next").onclick = function(){ opts.bump(); draw(); };
+    $("next").onclick = function(){
+      advance(opts.id, opts.nouns.length); draw();
+    };
   }
 
-  var cIdx = 0;
   DRAW.accord = function(){
     accordStep({
       id: "accord",
-      idx: function(){ return cIdx; },
-      bump: function(){ cIdx++; },
       nouns: GARMENTS.filter(function(g){ return g.num === "s"; }),
       colours: function(c){ return c.changes; },
       why: function(g, c, want, got){
@@ -913,12 +1003,9 @@
       }
     });
   };
-  var pIdx = 0;
   DRAW.pluriel = function(){
     accordStep({
       id: "pluriel",
-      idx: function(){ return pIdx; },
-      bump: function(){ pIdx++; },
       nouns: GARMENTS.map(pluralOf),
       colours: function(c){ return c.changes; },
       why: function(g, c, want, got){
@@ -946,9 +1033,9 @@
      one and a misplaced colour from a correct one. It cannot tell whether
      a sentence it does not recognise is good French, and it says so
      rather than marking it wrong. */
-  var zIdx = 0;
+
   DRAW.ecris = function(){
-    var p = P.people[zIdx % P.people.length];
+    var np = P.people.length, p = P.people[dealt("ecris", np)];
     var fs = factsOf(p);
     $("main").innerHTML = ruleFor("ecris")
       + '<div class="work"><div class="who">'
@@ -962,7 +1049,7 @@
       + '<button class="btn sm" id="check">Check</button>'
       + '<button class="btn ghost sm" id="next">Another person</button></div>';
     $("ta").value = S.wrote[p.id] || "";
-    $("next").onclick = function(){ zIdx++; draw(); };
+    $("next").onclick = function(){ advance("ecris", np); draw(); };
     $("ta").oninput = function(){ S.wrote[p.id] = $("ta").value; save(); };
     $("check").onclick = function(){
       var raw = $("ta").value;
