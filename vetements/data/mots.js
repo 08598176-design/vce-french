@@ -75,6 +75,7 @@ window.FR_MOTS = {
     {
       "fr": "un manteau",
       "base": "manteau",
+      "pl": "manteaux",
       "det": "un",
       "g": "m",
       "num": "s",
@@ -115,6 +116,7 @@ window.FR_MOTS = {
     {
       "fr": "un chapeau",
       "base": "chapeau",
+      "pl": "chapeaux",
       "det": "un",
       "g": "m",
       "num": "s",

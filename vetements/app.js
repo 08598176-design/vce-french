@@ -135,11 +135,18 @@
     return hex ? '<span class="sw" style="background:' + esc(hex) + '"></span>' : "";
   }
   /* des pulls, des chemises: the plural of a singular garment, for the
-     step where more than one is the point */
+     step where more than one is the point.
+
+     Adding an s is not the plural of every French noun, and this used to
+     do exactly that: it put des chapeaus and des manteaus on the screen
+     and into the recordings, which is the one mistake a French teacher
+     cannot be shown. A noun whose plural is not base + s carries it in
+     the data as  pl , and the validator insists on one for any noun whose
+     ending (-eau, -au, -eu, -al, -ail) means it needs one. */
   function pluralOf(g){
     if (g.num === "p") return { fr: g.fr, base: g.base, g: g.g, num: "p",
                                 en: g.en, kind: "garment", zone: g.zone };
-    var b = g.base + (/[sxz]$/.test(g.base) ? "" : "s");
+    var b = g.pl || (g.base + (/[sxz]$/.test(g.base) ? "" : "s"));
     return { fr: "des " + b, base: b, g: g.g, num: "p", en: g.en,
              kind: "garment", zone: g.zone };
   }

@@ -614,6 +614,7 @@
 <script src="data/questions.js"></script>
 <script src="data/topics.js"></script>
 <script src="data/phrases.js"></script>
+<script src="data/readings.js"></script>
 <script src="data/audio.js"></script>
 <script>
 (function(){
@@ -625,7 +626,7 @@
       TOPD = window.FR_TOPICS || { topics:[], groups:[] },
       TOP  = TOPD.topics,
       PH   = window.FR_PHRASES,
-      BUILD = "Build 4, 6 October 2026";
+      BUILD = "Build 5, 12 October 2026";
 
   function $(id){ return document.getElementById(id); }
   function esc(s){
@@ -637,14 +638,26 @@
     Array.prototype.forEach.call(scope.querySelectorAll(sel), fn);
   }
 
-  /* What the voice is handed. French needs none of the Japanese app's
-     machinery here: no readings, no bracket notation, no overrides. The one
-     thing to strip is the blank in a sentence frame, which a voice would
-     otherwise read out as a row of underscores. */
+  /* What the voice is handed. Two things happen to it. The blank in a
+     sentence frame comes out, because a voice reads a row of underscores
+     aloud. Then a spelling is swapped in for the few things the voice is
+     known to get wrong, which are listed in readings.js with nothing else
+     beside them: a run of digits it reads as one number, a Roman numeral
+     it has to guess at. Longest first.
+
+     French needs nothing like the Japanese app's reading machinery beyond
+     this. There is no は here to be said わ: French orthography and French
+     pronunciation disagree constantly, but a French voice is built for
+     exactly that and respelling it would make things worse, not better. */
+  var FROVER = ((window.FR_READINGS || {}).overrides || [])
+    .slice().sort(function(a, b){ return b.fr.length - a.fr.length; });
   function speakable(text){
-    return String(text == null ? "" : text)
+    var out = String(text == null ? "" : text)
       .replace(/[＿_]{2,}/g, " ")
       .replace(/\s+/g, " ").trim();
+    for (var i = 0; i < FROVER.length; i++)
+      out = out.split(FROVER[i].fr).join(FROVER[i].say);
+    return out;
   }
   var CLIPS = (window.FR_AUDIO || {}).clips || {};
   function clipFor(text){ return CLIPS[speakable(text)] || null; }
