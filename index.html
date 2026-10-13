@@ -626,7 +626,7 @@
       TOPD = window.FR_TOPICS || { topics:[], groups:[] },
       TOP  = TOPD.topics,
       PH   = window.FR_PHRASES,
-      BUILD = "Build 5, 12 October 2026";
+      BUILD = "Build 6, 13 October 2026";
 
   function $(id){ return document.getElementById(id); }
   function esc(s){
@@ -904,7 +904,10 @@
       }
       strip.innerHTML = three;
 
-      var SLOW = 2.4, DRAG = 90, CATCH = 300, K = 150, C = 16;
+      /* Three to five seconds of spin. It used to lose 2.4 of its speed a
+         second with 90 of friction on top, which stopped even the hardest
+         flick in about 1.3 seconds: a flick, not a spin. */
+      var SLOW = 0.8, DRAG = 45, CATCH = 300, K = 150, C = 16;
       var pos = 0, v = 0, target = null, last = 0, lastTick = 0, lastDetent = 0;
       var spinning = false;
 
@@ -914,12 +917,20 @@
           "translate3d(0," + (H - SPAN - wrap(pos)).toFixed(2) + "px,0)";
       }
       function at(){ return Math.round(wrap(pos) / H) % L; }
+      /* The pawl hits every notch it passes, and at speed that is several
+         in one frame. One tick a frame was a flat sixty a second that did
+         not change as the drum slowed. */
+      var MINGAP = 0.013;          /* seconds; faster than this is a buzz */
       function ticks(now){
         var d = Math.floor(wrap(pos) / H);
-        if (d !== lastDetent){
-          lastDetent = d;
-          if (now - lastTick > 26){ lastTick = now; CLICK.play(); }
-        }
+        if (d === lastDetent) return;
+        var crossed = Math.abs(d - lastDetent);
+        if (crossed > L / 2) crossed = 1;        /* it wrapped round */
+        lastDetent = d;
+        var span = Math.max(0.001, (now - lastTick) / 1000);
+        lastTick = now;
+        var n = Math.min(crossed, 5);
+        CLICK.clatter(n, Math.max(MINGAP, span / n), Math.abs(v));
       }
       function done(){
         spinning = false;
@@ -1011,12 +1022,56 @@
       win.addEventListener("pointerup", release);
       win.addEventListener("pointercancel", release);
 
+      /* ---- which one it stops on ----
+         The drum rebuilds its order at the start of every button spin,
+         while it is moving and nobody can read it, and the caller names
+         the one it wants. The throw is solved rather than guessed: run the
+         same physics forward for a few hundred candidate speeds, keep the
+         ones that stop on the wanted slot inside the time window, pick
+         one. Nothing steers the drum or stops it early. */
+      function reorder(){
+        shuffle(items);
+        var three = "";
+        for (var c = 0; c < 3; c++){
+          three += items.map(function(it){
+            return '<div class="ritem"><b>' + it.html + '</b>'
+                 + (it.sub ? '<i>' + it.sub + '</i>' : '') + '</div>';
+          }).join("");
+        }
+        strip.innerHTML = three;
+        paint();
+      }
+      function dryRun(v0){
+        var p = 0, u = v0, t = 0, dt = 1 / 60;
+        while (u > CATCH && t < 12){
+          u -= (SLOW * u + DRAG) * dt;
+          if (u < 0) u = 0;
+          p += u * dt;
+          t += dt;
+        }
+        return { slot: Math.round(p / H), secs: t + 0.3 };
+      }
+      var MINS = 2.8, MAXS = 5.0;
+      function throwTo(slot){
+        var from = Math.round(pos / H), want = ((slot % L) + L) % L, hits = [];
+        for (var v0 = 3200; v0 <= 15000; v0 += 25){
+          var r = dryRun(v0);
+          if (r.secs < MINS || r.secs > MAXS) continue;
+          if ((((from + r.slot) % L) + L) % L === want) hits.push(v0);
+        }
+        if (!hits.length) return launch(5000 + Math.random() * 6000);
+        launch(hits[Math.floor(Math.random() * hits.length)]);
+      }
+
       paint();
       return {
-        /* The button spin. A random amount of energy, so it is not the same
-           throw every time, and always downward so the list reads the way
-           it would if you had flicked it up yourself. */
-        spin: function(){ launch(2400 + Math.random() * 1300); },
+        spin: function(){ reorder(); launch(4200 + Math.random() * 7000); },
+        spinTo: function(id){
+          reorder();
+          var i = 0;
+          items.forEach(function(it, n){ if (it.id === id) i = n; });
+          throwTo(i);
+        },
         at: at,
         spinning: function(){ return spinning; }
       };
@@ -1038,7 +1093,7 @@
       for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
       return ctx;
     }
-    return { play: function(){
+    function play(){
       if (!S.click) return;
       try {
         var c = build();
@@ -1055,8 +1110,81 @@
         src.connect(bp); bp.connect(g); g.connect(c.destination);
         src.start(t); src.stop(t + 0.07);
       } catch (e){}
-    }};
+    }
+    /* ---- the drum's clack ----
+       A button press keeps the short band of noise above, which is the
+       right sound for a button. A notch going past a pawl needs two
+       sounds at once: the strike with the low end taken off, and the rim
+       ringing for a few hundredths of a second after it. Every click
+       differs a little in pitch and level, because thirty identical ones
+       stop sounding like wood and start sounding like a buzzer. */
+    function clack(at, loud){
+      var c = ctx; if (!c) return;
+      var vol = Math.max(0.05, Math.min(0.34, loud));
+      var jit = 0.88 + Math.random() * 0.26;
+
+      var src = c.createBufferSource(); src.buffer = noise;
+      var bp = c.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = 2600 * jit; bp.Q.value = 2.2;
+      var g1 = c.createGain();
+      g1.gain.setValueAtTime(0.0001, at);
+      g1.gain.exponentialRampToValueAtTime(vol, at + 0.001);
+      g1.gain.exponentialRampToValueAtTime(0.0001, at + 0.016);
+      src.connect(bp); bp.connect(g1); g1.connect(c.destination);
+      src.start(at); src.stop(at + 0.02);
+
+      var o = c.createOscillator();
+      o.type = "triangle";
+      o.frequency.setValueAtTime(1150 * jit, at);
+      o.frequency.exponentialRampToValueAtTime(820 * jit, at + 0.03);
+      var g2 = c.createGain();
+      g2.gain.setValueAtTime(0.0001, at);
+      g2.gain.exponentialRampToValueAtTime(vol * 0.7, at + 0.002);
+      g2.gain.exponentialRampToValueAtTime(0.0001, at + 0.034);
+      o.connect(g2); g2.connect(c.destination);
+      o.start(at); o.stop(at + 0.04);
+    }
+    /* n notches in one frame, gap seconds apart, booked ahead on the audio
+       clock so the rate falls away with the drum. */
+    function clatter(n, gap, speed){
+      if (!S.click) return;
+      try {
+        var c = build(); if (!c) return;
+        if (c.state === "suspended") c.resume();
+        var t = c.currentTime + 0.002;
+        var loud = 0.30 - Math.min(0.17, (speed || 0) / 42000);
+        for (var i = 0; i < n; i++) clack(t + i * gap, loud);
+      } catch (e){}
+    }
+    return { play: play, clatter: clatter };
   })();
+  /* Fisher-Yates, in place. The drum reshuffles its own order between
+     spins and the topic deck reshuffles when it is spent. */
+  function shuffle(a){
+    for (var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+  }
+  /* ---- the drum's deck ----
+     Eight topics and a random throw meant one could come up twice running
+     and another could sit there all lesson. A deck deals each one before
+     any comes round again, and never opens a new deck on the topic the
+     last one ended with. */
+  var SPINDECK = { order: [], at: 0 };
+  function spinDeal(list){
+    SPINDECK.order = list.map(function(t){ return t.id; });
+    shuffle(SPINDECK.order);
+    SPINDECK.at = 0;
+  }
+  function spinNext(){
+    SPINDECK.at++;
+    if (SPINDECK.at >= SPINDECK.order.length){
+      var last = SPINDECK.order[SPINDECK.order.length - 1], tries = 0;
+      do { shuffle(SPINDECK.order); tries++; }
+      while (SPINDECK.order.length > 1 && SPINDECK.order[0] === last && tries < 20);
+      SPINDECK.at = 0;
+    }
+  }
   document.addEventListener("click", function(ev){
     if (ev.target.closest && ev.target.closest(".block, nav button, .tile, .movebtn"))
       CLICK.play();
@@ -1431,17 +1559,22 @@
       + 'Tourner la roue</button></div>'
       + '<div id="spinOut"></div>'
       + foot();
+    if (!SPINDECK.order.length) spinDeal(CT);
     var R = REEL.mount($("reel"), CT.map(function(t){
       return { html: esc(t.fr), sub: esc(t.en), id: t.id };
     }), function(item){
       spun = item.id;
+      /* the deck only moves on when the drum stopped where it was sent: a
+         student who throws it by hand lands where the physics put them,
+         and the dealt topic waits its turn */
+      if (SPINDECK.order[SPINDECK.at] === item.id) spinNext();
       showSpun(item);
     });
     function go1(){
       if (R.spinning()) return;
       SAY.stop();
       $("spinOut").innerHTML = "";
-      R.spin();
+      R.spinTo(SPINDECK.order[SPINDECK.at]);
     }
     $("spinBtn").onclick = go1;
     $("rspin").onclick = go1;
